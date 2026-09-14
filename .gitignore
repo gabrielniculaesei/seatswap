@@ -1,0 +1,22 @@
+# dependencies
+node_modules/
+.venv/
+__pycache__/
+*.py[cod]
+
+# builds
+.next/
+out/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# environment
+.env
+.env.local
+.env*.local
+
+# tooling
+.pytest_cache/
+.ruff_cache/
+.DS_Store

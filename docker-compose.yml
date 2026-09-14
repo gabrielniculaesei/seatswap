@@ -1,0 +1,40 @@
+# Local development only. Production is Vercel + Neon + a worker host.
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: seatswap
+      POSTGRES_PASSWORD: seatswap
+      POSTGRES_DB: seatswap
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U seatswap"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  worker:
+    build:
+      context: ./solver
+    environment:
+      DATABASE_URL: postgres://seatswap:seatswap@postgres:5432/seatswap
+      AERODATABOX_MODE: "${AERODATABOX_MODE:-fixture}"
+      RAPIDAPI_KEY: "${RAPIDAPI_KEY:-}"
+      TELEGRAM_BOT_TOKEN: "${TELEGRAM_BOT_TOKEN:-}"
+      PUBLIC_BASE_URL: "${PUBLIC_BASE_URL:-http://localhost:3000}"
+      MIN_GAIN: "${MIN_GAIN:-20}"
+      SOLVER_MAX_SECONDS: "${SOLVER_MAX_SECONDS:-10}"
+      LOG_LEVEL: "${LOG_LEVEL:-INFO}"
+    volumes:
+      # One source of truth for seat maps: the worker reads the web app's config.
+      - ./web/config:/app/web/config:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

@@ -1,0 +1,7 @@
+{
+  "FR": { "name": "Ryanair",   "checkin_opens_hours_before": 24 },
+  "W6": { "name": "Wizz Air",  "checkin_opens_hours_before": 48 },
+  "U2": { "name": "easyJet",   "checkin_opens_hours_before": 30 },
+  "VY": { "name": "Vueling",   "checkin_opens_hours_before": 48 },
+  "_default": { "name": null,  "checkin_opens_hours_before": 24 }
+}

@@ -1,0 +1,15 @@
+[
+  {
+    "number": "FR 1234",
+    "status": "Scheduled",
+    "departure": {
+      "airport": { "iata": "STN", "name": "London Stansted" },
+      "scheduledTime": { "utc": "2026-10-12 11:20Z" }
+    },
+    "arrival": {
+      "airport": { "iata": "DUB", "name": "Dublin" },
+      "scheduledTime": { "utc": "2026-10-12 12:45Z" }
+    },
+    "aircraft": { "model": "Boeing 737-800" }
+  }
+]

@@ -1,0 +1,862 @@
+[
+  {
+    "participation": 0.02,
+    "flights": 40,
+    "mean_parties": 2.6,
+    "by_strategy": {
+      "chains": {
+        "improved_share": 0.057692307692307696,
+        "adjacency_success": 0.0,
+        "realised_adjacency_success": 0.0,
+        "gain_per_party": 2.9134615384615383,
+        "realised_gain_per_party": 2.359903846153846,
+        "mean_cycle_length": 2.0,
+        "max_cycle_length": 2,
+        "mean_proposals": 0.075,
+        "mean_realisation": 0.81,
+        "p95_seconds": 0.0035122080007568
+      },
+      "unbounded": {
+        "improved_share": 0.057692307692307696,
+        "adjacency_success": 0.0,
+        "realised_adjacency_success": 0.0,
+        "gain_per_party": 2.9134615384615383,
+        "realised_gain_per_party": 2.359903846153846,
+        "mean_cycle_length": 2.0,
+        "max_cycle_length": 2,
+        "mean_proposals": 0.075,
+        "mean_realisation": 0.81,
+        "p95_seconds": 0.0034002080210484564
+      },
+      "pairwise": {
+        "improved_share": 0.057692307692307696,
+        "adjacency_success": 0.0,
+        "realised_adjacency_success": 0.0,
+        "gain_per_party": 2.9134615384615383,
+        "realised_gain_per_party": 2.359903846153846,
+        "mean_cycle_length": 2.0,
+        "max_cycle_length": 2,
+        "mean_proposals": 0.075,
+        "mean_realisation": 0.81,
+        "p95_seconds": 0.00029808402177877724
+      }
+    }
+  },
+  {
+    "participation": 0.04,
+    "flights": 40,
+    "mean_parties": 5.35,
+    "by_strategy": {
+      "chains": {
+        "improved_share": 0.22897196261682243,
+        "adjacency_success": 0.04285714285714286,
+        "realised_adjacency_success": 0.033453609022556396,
+        "gain_per_party": 16.065420560747665,
+        "realised_gain_per_party": 12.540413625184458,
+        "mean_cycle_length": 2.3333333333333335,
+        "max_cycle_length": 4,
+        "mean_proposals": 0.525,
+        "mean_realisation": 0.7805842105263159,
+        "p95_seconds": 0.010177416988881305
+      },
+      "unbounded": {
+        "improved_share": 0.2383177570093458,
+        "adjacency_success": 0.04285714285714286,
+        "realised_adjacency_success": 0.03244689473684211,
+        "gain_per_party": 16.345794392523363,
+        "realised_gain_per_party": 12.375306301032957,
+        "mean_cycle_length": 2.6842105263157894,
+        "max_cycle_length": 5,
+        "mean_proposals": 0.475,
+        "mean_realisation": 0.7570942105263159,
+        "p95_seconds": 0.007031874993117526
+      },
+      "pairwise": {
+        "improved_share": 0.21495327102803738,
+        "adjacency_success": 0.014285714285714285,
+        "realised_adjacency_success": 0.011571428571428571,
+        "gain_per_party": 14.27570093457944,
+        "realised_gain_per_party": 11.563317757009347,
+        "mean_cycle_length": 2.0,
+        "max_cycle_length": 2,
+        "mean_proposals": 0.575,
+        "mean_realisation": 0.81,
+        "p95_seconds": 0.0016155829944182187
+      }
+    }
+  },
+  {
+    "participation": 0.06,
+    "flights": 40,
+    "mean_parties": 7.625,
+    "by_strategy": {
+      "chains": {
+        "improved_share": 0.24918032786885247,
+        "adjacency_success": 0.04950495049504951,
+        "realised_adjacency_success": 0.03669894801980198,
+        "gain_per_party": 17.095081967213115,
+        "realised_gain_per_party": 12.672904795081967,
+        "mean_cycle_length": 2.814814814814815,
+        "max_cycle_length": 4,
+        "mean_proposals": 0.675,
+        "mean_realisation": 0.74131875,
+        "p95_seconds": 0.050679792009759694
+      },
+      "unbounded": {
+        "improved_share": 0.26885245901639343,
+        "adjacency_success": 0.0594059405940594,
+        "realised_adjacency_success": 0.0422314551980198,
+        "gain_per_party": 18.281967213114754,
+        "realised_gain_per_party": 12.9965803347541,
+        "mean_cycle_length": 3.28,
+        "max_cycle_length": 7,
+        "mean_proposals": 0.625,
+        "mean_realisation": 0.7108961625000001,
+        "p95_seconds": 0.04539141699206084
+      },
+      "pairwise": {
+        "improved_share": 0.2098360655737705,
+        "adjacency_success": 0.0297029702970297,
+        "realised_adjacency_success": 0.023725247524752476,
+        "gain_per_party": 14.583606557377049,
+        "realised_gain_per_party": 11.64865573770492,
+        "mean_cycle_length": 2.1333333333333333,
+        "max_cycle_length": 3,
+        "mean_proposals": 0.75,
+        "mean_realisation": 0.7987500000000001,
+        "p95_seconds": 0.004685624997364357
+      }
+    }
+  },
+  {
+    "participation": 0.08,
+    "flights": 40,
+    "mean_parties": 10.375,
+    "by_strategy": {
+      "chains": {
+        "improved_share": 0.28674698795180725,
+        "adjacency_success": 0.06474820143884892,
+        "realised_adjacency_success": 0.04734379239465571,
+        "gain_per_party": 20.086746987951805,
+        "realised_gain_per_party": 14.687400702237522,
+        "mean_cycle_length": 2.975,
+        "max_cycle_length": 4,
+        "mean_proposals": 1.0,
+        "mean_realisation": 0.7311985714285715,
+        "p95_seconds": 0.06144191700150259
+      },
+      "unbounded": {
+        "improved_share": 0.3228915662650602,
+        "adjacency_success": 0.07194244604316546,
+        "realised_adjacency_success": 0.04950035704008222,
+        "gain_per_party": 21.672289156626505,
+        "realised_gain_per_party": 14.911726110691909,
+        "mean_cycle_length": 3.6216216216216215,
+        "max_cycle_length": 7,
+        "mean_proposals": 0.925,
+        "mean_realisation": 0.6880549628571428,
+        "p95_seconds": 0.04925391700817272
+      },
+      "pairwise": {
+        "improved_share": 0.2289156626506024,
+        "adjacency_success": 0.04316546762589928,
+        "realised_adjacency_success": 0.03434701650444351,
+        "gain_per_party": 16.132530120481928,
+        "realised_gain_per_party": 12.836749114103474,
+        "mean_cycle_length": 2.159090909090909,
+        "max_cycle_length": 3,
+        "mean_proposals": 1.1,
+        "mean_realisation": 0.7957058823529413,
+        "p95_seconds": 0.010112709016539156
+      }
+    }
+  },
+  {
+    "participation": 0.1,
+    "flights": 40,
+    "mean_parties": 12.275,
+    "by_strategy": {
+      "chains": {
+        "improved_share": 0.36863543788187375,
+        "adjacency_success": 0.13297872340425532,
+        "realised_adjacency_success": 0.09367021276595745,
+        "gain_per_party": 29.879837067209778,
+        "realised_gain_per_party": 21.04735723014257,
+        "mean_cycle_length": 3.232142857142857,
+        "max_cycle_length": 4,
+        "mean_proposals": 1.4,
+        "mean_realisation": 0.7044,
+        "p95_seconds": 0.07809504098258913
+      },
+      "unbounded": {
+        "improved_share": 0.4256619144602851,
+        "adjacency_success": 0.16489361702127658,
+        "realised_adjacency_success": 0.09447496738563829,
+        "gain_per_party": 33.44602851323829,
+        "realised_gain_per_party": 19.16273358573727,
+        "mean_cycle_length": 5.358974358974359,
+        "max_cycle_length": 9,
+        "mean_proposals": 0.975,
+        "mean_realisation": 0.5729449635,
+        "p95_seconds": 0.05939012498129159
+      },
+      "pairwise": {
+        "improved_share": 0.2830957230142566,
+        "adjacency_success": 0.047872340425531915,
+        "realised_adjacency_success": 0.03787665558510639,
+        "gain_per_party": 19.625254582484725,
+        "realised_gain_per_party": 15.527525957230145,
+        "mean_cycle_length": 2.171875,
+        "max_cycle_length": 5,
+        "mean_proposals": 1.6,
+        "mean_realisation": 0.7912012500000001,
+        "p95_seconds": 0.01880070799961686
+      }
+    }
+  },
+  {
+    "participation": 0.12,
+    "flights": 40,
+    "mean_parties": 15.65,
+    "by_strategy": {
+      "chains": {
+        "improved_share": 0.29073482428115016,
+        "adjacency_success": 0.12903225806451613,
+        "realised_adjacency_success": 0.09120680034873584,
+        "gain_per_party": 23.32108626198083,
+        "realised_gain_per_party": 16.48457285424402,
+        "mean_cycle_length": 3.1379310344827585,
+        "max_cycle_length": 4,
+        "mean_proposals": 1.45,
+        "mean_realisation": 0.7068527027027027,
+        "p95_seconds": 0.12264466701890342
+      },
+      "unbounded": {
+        "improved_share": 0.3706070287539936,
+        "adjacency_success": 0.17204301075268819,
+        "realised_adjacency_success": 0.09395278857541414,
+        "gain_per_party": 28.317891373801917,
+        "realised_gain_per_party": 15.464417005401565,
+        "mean_cycle_length": 5.8,
+        "max_cycle_length": 9,
+        "mean_proposals": 1.0,
+        "mean_realisation": 0.5461005835945947,
+        "p95_seconds": 0.0661797919892706
+      },
+      "pairwise": {
+        "improved_share": 0.26677316293929715,
+        "adjacency_success": 0.06989247311827956,
+        "realised_adjacency_success": 0.05531335658238884,
+        "gain_per_party": 19.557507987220447,
+        "realised_gain_per_party": 15.477938680597532,
+        "mean_cycle_length": 2.168831168831169,
+        "max_cycle_length": 5,
+        "mean_proposals": 1.925,
+        "mean_realisation": 0.7914064864864866,
+        "p95_seconds": 0.039219291997142136
+      }
+    }
+  },
+  {
+    "participation": 0.14,
+    "flights": 40,
+    "mean_parties": 17.05,
+    "by_strategy": {
+      "chains": {
+        "improved_share": 0.375366568914956,
+        "adjacency_success": 0.1394422310756972,
+        "realised_adjacency_success": 0.0965152083971805,
+        "gain_per_party": 32.558651026392965,
+        "realised_gain_per_party": 22.535532920708327,
+        "mean_cycle_length": 3.3684210526315788,
+        "max_cycle_length": 4,
+        "mean_proposals": 1.9,
+        "mean_realisation": 0.6921519230769231,
+        "p95_seconds": 0.14202954102074727
+      },
+      "unbounded": {
+        "improved_share": 0.5175953079178885,
+        "adjacency_success": 0.1952191235059761,
+        "realised_adjacency_success": 0.08515984431012572,
+        "gain_per_party": 40.860703812316714,
+        "realised_gain_per_party": 17.824540508975957,
+        "mean_cycle_length": 8.022727272727273,
+        "max_cycle_length": 14,
+        "mean_proposals": 1.1,
+        "mean_realisation": 0.43622695758860314,
+        "p95_seconds": 0.0922577919845935
+      },
+      "pairwise": {
+        "improved_share": 0.31671554252199413,
+        "adjacency_success": 0.06772908366533864,
+        "realised_adjacency_success": 0.05306563285320257,
+        "gain_per_party": 24.26392961876833,
+        "realised_gain_per_party": 19.010751527182496,
+        "mean_cycle_length": 2.2268041237113403,
+        "max_cycle_length": 5,
+        "mean_proposals": 2.425,
+        "mean_realisation": 0.7834984615384616,
+        "p95_seconds": 0.055720375006785616
+      }
+    }
+  },
+  {
+    "participation": 0.16,
+    "flights": 40,
+    "mean_parties": 19.65,
+    "by_strategy": {
+      "chains": {
+        "improved_share": 0.36259541984732824,
+        "adjacency_success": 0.15827338129496402,
+        "realised_adjacency_success": 0.10843972122302158,
+        "gain_per_party": 31.557251908396946,
+        "realised_gain_per_party": 21.621194742366413,
+        "mean_cycle_length": 3.5185185185185186,
+        "max_cycle_length": 4,
+        "mean_proposals": 2.025,
+        "mean_realisation": 0.685141875,
+        "p95_seconds": 0.1959780830075033
+      },
+      "unbounded": {
+        "improved_share": 0.4860050890585242,
+        "adjacency_success": 0.21942446043165467,
+        "realised_adjacency_success": 0.09438195345825882,
+        "gain_per_party": 40.08015267175573,
+        "realised_gain_per_party": 17.23984234311844,
+        "mean_cycle_length": 7.795918367346939,
+        "max_cycle_length": 16,
+        "mean_proposals": 1.225,
+        "mean_realisation": 0.43013414854747467,
+        "p95_seconds": 0.11898216599365696
+      },
+      "pairwise": {
+        "improved_share": 0.3015267175572519,
+        "adjacency_success": 0.05755395683453238,
+        "realised_adjacency_success": 0.04502279136690648,
+        "gain_per_party": 22.202290076335878,
+        "realised_gain_per_party": 17.368207660305345,
+        "mean_cycle_length": 2.257142857142857,
+        "max_cycle_length": 5,
+        "mean_proposals": 2.625,
+        "mean_realisation": 0.782271,
+        "p95_seconds": 0.07303595799021423
+      }
+    }
+  },
+  {
+    "participation": 0.18,
+    "flights": 40,
+    "mean_parties": 22.1,
+    "by_strategy": {
+      "chains": {
+        "improved_share": 0.40384615384615385,
+        "adjacency_success": 0.19325153374233128,
+        "realised_adjacency_success": 0.13402549463190183,
+        "gain_per_party": 38.58031674208145,
+        "realised_gain_per_party": 26.75655884473982,
+        "mean_cycle_length": 3.3679245283018866,
+        "max_cycle_length": 4,
+        "mean_proposals": 2.65,
+        "mean_realisation": 0.69352875,
+        "p95_seconds": 0.26743374997749925
+      },
+      "unbounded": {
+        "improved_share": 0.5644796380090498,
+        "adjacency_success": 0.3098159509202454,
+        "realised_adjacency_success": 0.09212468211633623,
+        "gain_per_party": 51.72850678733032,
+        "realised_gain_per_party": 15.38162328305137,
+        "mean_cycle_length": 11.604651162790697,
+        "max_cycle_length": 20,
+        "mean_proposals": 1.075,
+        "mean_realisation": 0.29735293435569915,
+        "p95_seconds": 0.17116029100725427
+      },
+      "pairwise": {
+        "improved_share": 0.36199095022624433,
+        "adjacency_success": 0.1196319018404908,
+        "realised_adjacency_success": 0.0906034146625767,
+        "gain_per_party": 30.33371040723982,
+        "realised_gain_per_party": 22.97328471753394,
+        "mean_cycle_length": 2.4427480916030535,
+        "max_cycle_length": 7,
+        "mean_proposals": 3.275,
+        "mean_realisation": 0.75735162,
+        "p95_seconds": 0.12526629099738784
+      }
+    }
+  },
+  {
+    "participation": 0.2,
+    "flights": 40,
+    "mean_parties": 25.2,
+    "by_strategy": {
+      "chains": {
+        "improved_share": 0.3521825396825397,
+        "adjacency_success": 0.20238095238095238,
+        "realised_adjacency_success": 0.14106736607142858,
+        "gain_per_party": 33.25694444444444,
+        "realised_gain_per_party": 23.181378984375,
+        "mean_cycle_length": 3.380952380952381,
+        "max_cycle_length": 4,
+        "mean_proposals": 2.625,
+        "mean_realisation": 0.69703875,
+        "p95_seconds": 0.3925998750200961
+      },
+      "unbounded": {
+        "improved_share": 0.5089285714285714,
+        "adjacency_success": 0.33035714285714285,
+        "realised_adjacency_success": 0.10166291091359653,
+        "gain_per_party": 46.57142857142857,
+        "realised_gain_per_party": 14.331722792576201,
+        "mean_cycle_length": 11.4,
+        "max_cycle_length": 19,
+        "mean_proposals": 1.125,
+        "mean_realisation": 0.3077363789816976,
+        "p95_seconds": 0.5637742499820888
+      },
+      "pairwise": {
+        "improved_share": 0.30753968253968256,
+        "adjacency_success": 0.09523809523809523,
+        "realised_adjacency_success": 0.07394088857142857,
+        "gain_per_party": 24.717261904761905,
+        "realised_gain_per_party": 19.189971237053573,
+        "mean_cycle_length": 2.3484848484848486,
+        "max_cycle_length": 6,
+        "mean_proposals": 3.3,
+        "mean_realisation": 0.77637933,
+        "p95_seconds": 0.1446927500073798
+      }
+    }
+  },
+  {
+    "participation": 0.22,
+    "flights": 40,
+    "mean_parties": 27.2,
+    "by_strategy": {
+      "chains": {
+        "improved_share": 0.3694852941176471,
+        "adjacency_success": 0.22427440633245382,
+        "realised_adjacency_success": 0.15458929254617415,
+        "gain_per_party": 36.424632352941174,
+        "realised_gain_per_party": 25.107002795266542,
+        "mean_cycle_length": 3.4956521739130433,
+        "max_cycle_length": 4,
+        "mean_proposals": 2.875,
+        "mean_realisation": 0.689286375,
+        "p95_seconds": 0.5627862919936888
+      },
+      "unbounded": {
+        "improved_share": 0.5395220588235294,
+        "adjacency_success": 0.33773087071240104,
+        "realised_adjacency_success": 0.0866976935415876,
+        "gain_per_party": 49.653492647058826,
+        "realised_gain_per_party": 12.746371925384407,
+        "mean_cycle_length": 13.340909090909092,
+        "max_cycle_length": 22,
+        "mean_proposals": 1.1,
+        "mean_realisation": 0.25670645197079456,
+        "p95_seconds": 0.8878089580102824
+      },
+      "pairwise": {
+        "improved_share": 0.2977941176470588,
+        "adjacency_success": 0.08970976253298153,
+        "realised_adjacency_success": 0.06948813292480212,
+        "gain_per_party": 24.721507352941178,
+        "realised_gain_per_party": 19.14899048374012,
+        "mean_cycle_length": 2.3823529411764706,
+        "max_cycle_length": 8,
+        "mean_proposals": 3.4,
+        "mean_realisation": 0.7745883052500001,
+        "p95_seconds": 0.22263741699862294
+      }
+    }
+  },
+  {
+    "participation": 0.24,
+    "flights": 40,
+    "mean_parties": 29.9,
+    "by_strategy": {
+      "chains": {
+        "improved_share": 0.387123745819398,
+        "adjacency_success": 0.23333333333333334,
+        "realised_adjacency_success": 0.1608235875,
+        "gain_per_party": 38.28929765886288,
+        "realised_gain_per_party": 26.390666624372912,
+        "mean_cycle_length": 3.507575757575758,
+        "max_cycle_length": 4,
+        "mean_proposals": 3.3,
+        "mean_realisation": 0.6892439464285715,
+        "p95_seconds": 0.5427583749988116
+      },
+      "unbounded": {
+        "improved_share": 0.5451505016722408,
+        "adjacency_success": 0.35714285714285715,
+        "realised_adjacency_success": 0.07568091701048019,
+        "gain_per_party": 51.47157190635451,
+        "realised_gain_per_party": 10.907164133162581,
+        "mean_cycle_length": 15.523809523809524,
+        "max_cycle_length": 24,
+        "mean_proposals": 1.05,
+        "mean_realisation": 0.2119065676293445,
+        "p95_seconds": 0.6118497920106165
+      },
+      "pairwise": {
+        "improved_share": 0.33361204013377926,
+        "adjacency_success": 0.10952380952380952,
+        "realised_adjacency_success": 0.08515941187500001,
+        "gain_per_party": 26.748327759197323,
+        "realised_gain_per_party": 20.797960466466346,
+        "mean_cycle_length": 2.36094674556213,
+        "max_cycle_length": 6,
+        "mean_proposals": 4.225,
+        "mean_realisation": 0.7775424562500001,
+        "p95_seconds": 0.2580175000184681
+      }
+    }
+  },
+  {
+    "participation": 0.26,
+    "flights": 40,
+    "mean_parties": 31.875,
+    "by_strategy": {
+      "chains": {
+        "improved_share": 0.3898039215686275,
+        "adjacency_success": 0.23423423423423423,
+        "realised_adjacency_success": 0.16109635135135136,
+        "gain_per_party": 38.17254901960784,
+        "realised_gain_per_party": 26.253456882352943,
+        "mean_cycle_length": 3.55,
+        "max_cycle_length": 4,
+        "mean_proposals": 3.5,
+        "mean_realisation": 0.6877575,
+        "p95_seconds": 0.802686957991682
+      },
+      "unbounded": {
+        "improved_share": 0.5552941176470588,
+        "adjacency_success": 0.3783783783783784,
+        "realised_adjacency_success": 0.07278162797455694,
+        "gain_per_party": 52.09725490196078,
+        "realised_gain_per_party": 10.02098227974974,
+        "mean_cycle_length": 16.46511627906977,
+        "max_cycle_length": 25,
+        "mean_proposals": 1.075,
+        "mean_realisation": 0.19235144536132903,
+        "p95_seconds": 0.7236324589757714
+      },
+      "pairwise": {
+        "improved_share": 0.3176470588235294,
+        "adjacency_success": 0.09684684684684684,
+        "realised_adjacency_success": 0.07486416942567567,
+        "gain_per_party": 25.467450980392158,
+        "realised_gain_per_party": 19.68674899711765,
+        "mean_cycle_length": 2.3823529411764706,
+        "max_cycle_length": 6,
+        "mean_proposals": 4.25,
+        "mean_realisation": 0.773016075,
+        "p95_seconds": 0.31297916697803885
+      }
+    }
+  },
+  {
+    "participation": 0.28,
+    "flights": 40,
+    "mean_parties": 33.825,
+    "by_strategy": {
+      "chains": {
+        "improved_share": 0.4079822616407982,
+        "adjacency_success": 0.2611464968152866,
+        "realised_adjacency_success": 0.17827157211101002,
+        "gain_per_party": 41.05321507760532,
+        "realised_gain_per_party": 28.024964077051003,
+        "mean_cycle_length": 3.5612903225806454,
+        "max_cycle_length": 4,
+        "mean_proposals": 3.875,
+        "mean_realisation": 0.6826496785714287,
+        "p95_seconds": 0.9441399580100551
+      },
+      "unbounded": {
+        "improved_share": 0.5631929046563193,
+        "adjacency_success": 0.4033970276008493,
+        "realised_adjacency_success": 0.07257321183393657,
+        "gain_per_party": 55.210643015521065,
+        "realised_gain_per_party": 9.932680255189926,
+        "mean_cycle_length": 17.318181818181817,
+        "max_cycle_length": 26,
+        "mean_proposals": 1.1,
+        "mean_realisation": 0.17990517249360066,
+        "p95_seconds": 0.8127429999876767
+      },
+      "pairwise": {
+        "improved_share": 0.3458980044345898,
+        "adjacency_success": 0.10828025477707007,
+        "realised_adjacency_success": 0.08286049428207462,
+        "gain_per_party": 29.67849223946785,
+        "realised_gain_per_party": 22.7112001312892,
+        "mean_cycle_length": 2.5161290322580645,
+        "max_cycle_length": 7,
+        "mean_proposals": 4.65,
+        "mean_realisation": 0.7652410354285715,
+        "p95_seconds": 0.38171383301960304
+      }
+    }
+  },
+  {
+    "participation": 0.3,
+    "flights": 40,
+    "mean_parties": 35.375,
+    "by_strategy": {
+      "chains": {
+        "improved_share": 0.4318021201413428,
+        "adjacency_success": 0.2533081285444234,
+        "realised_adjacency_success": 0.1759086402241426,
+        "gain_per_party": 43.546289752650175,
+        "realised_gain_per_party": 30.240516406688542,
+        "mean_cycle_length": 3.4519774011299433,
+        "max_cycle_length": 4,
+        "mean_proposals": 4.425,
+        "mean_realisation": 0.6944453035714286,
+        "p95_seconds": 1.3255144169961568
+      },
+      "unbounded": {
+        "improved_share": 0.6183745583038869,
+        "adjacency_success": 0.44045368620037806,
+        "realised_adjacency_success": 0.05458365724616799,
+        "gain_per_party": 61.208480565371026,
+        "realised_gain_per_party": 7.585321291235635,
+        "mean_cycle_length": 20.833333333333332,
+        "max_cycle_length": 29,
+        "mean_proposals": 1.05,
+        "mean_realisation": 0.12392598576490502,
+        "p95_seconds": 3.4768351250095293
+      },
+      "pairwise": {
+        "improved_share": 0.35901060070671376,
+        "adjacency_success": 0.11720226843100189,
+        "realised_adjacency_success": 0.09046084549004185,
+        "gain_per_party": 30.884098939929327,
+        "realised_gain_per_party": 23.837437105143152,
+        "mean_cycle_length": 2.478048780487805,
+        "max_cycle_length": 8,
+        "mean_proposals": 5.125,
+        "mean_realisation": 0.7718352784553572,
+        "p95_seconds": 0.5254116659925785
+      }
+    }
+  },
+  {
+    "participation": 0.32,
+    "flights": 40,
+    "mean_parties": 38.5,
+    "by_strategy": {
+      "chains": {
+        "improved_share": 0.40194805194805194,
+        "adjacency_success": 0.2643253234750462,
+        "realised_adjacency_success": 0.1823466085951941,
+        "gain_per_party": 40.56428571428572,
+        "realised_gain_per_party": 27.983546308928574,
+        "mean_cycle_length": 3.537142857142857,
+        "max_cycle_length": 4,
+        "mean_proposals": 4.375,
+        "mean_realisation": 0.68985675,
+        "p95_seconds": 1.713778083998477
+      },
+      "unbounded": {
+        "improved_share": 0.5863636363636363,
+        "adjacency_success": 0.4805914972273567,
+        "realised_adjacency_success": 0.06494633981296893,
+        "gain_per_party": 59.50974025974026,
+        "realised_gain_per_party": 8.042047841853922,
+        "mean_cycle_length": 20.522727272727273,
+        "max_cycle_length": 32,
+        "mean_proposals": 1.1,
+        "mean_realisation": 0.13513834553390844,
+        "p95_seconds": 2.2929952499980573
+      },
+      "pairwise": {
+        "improved_share": 0.32857142857142857,
+        "adjacency_success": 0.12014787430683918,
+        "realised_adjacency_success": 0.09296280852992894,
+        "gain_per_party": 27.896753246753246,
+        "realised_gain_per_party": 21.58473918615948,
+        "mean_cycle_length": 2.4326923076923075,
+        "max_cycle_length": 6,
+        "mean_proposals": 5.2,
+        "mean_realisation": 0.7737366063798702,
+        "p95_seconds": 0.561920458014356
+      }
+    }
+  },
+  {
+    "participation": 0.34,
+    "flights": 40,
+    "mean_parties": 42.4,
+    "by_strategy": {
+      "chains": {
+        "improved_share": 0.40860849056603776,
+        "adjacency_success": 0.30887372013651876,
+        "realised_adjacency_success": 0.21262597457033156,
+        "gain_per_party": 41.951650943396224,
+        "realised_gain_per_party": 28.879150556193142,
+        "mean_cycle_length": 3.5357142857142856,
+        "max_cycle_length": 4,
+        "mean_proposals": 4.9,
+        "mean_realisation": 0.6883912767857143,
+        "p95_seconds": 2.1485026250011288
+      },
+      "unbounded": {
+        "improved_share": 0.5766509433962265,
+        "adjacency_success": 0.515358361774744,
+        "realised_adjacency_success": 0.04610433044988655,
+        "gain_per_party": 59.155660377358494,
+        "realised_gain_per_party": 5.2921080093216295,
+        "mean_cycle_length": 23.853658536585368,
+        "max_cycle_length": 31,
+        "mean_proposals": 1.025,
+        "mean_realisation": 0.08946072067428318,
+        "p95_seconds": 5.290189999999711
+      },
+      "pairwise": {
+        "improved_share": 0.3284198113207547,
+        "adjacency_success": 0.1552901023890785,
+        "realised_adjacency_success": 0.12023454435185581,
+        "gain_per_party": 28.8248820754717,
+        "realised_gain_per_party": 22.317884456389283,
+        "mean_cycle_length": 2.4217391304347826,
+        "max_cycle_length": 8,
+        "mean_proposals": 5.75,
+        "mean_realisation": 0.7742576152767857,
+        "p95_seconds": 0.5684769170184154
+      }
+    }
+  },
+  {
+    "participation": 0.36,
+    "flights": 40,
+    "mean_parties": 43.3,
+    "by_strategy": {
+      "chains": {
+        "improved_share": 0.447459584295612,
+        "adjacency_success": 0.3064516129032258,
+        "realised_adjacency_success": 0.21089722551843318,
+        "gain_per_party": 46.12528868360277,
+        "realised_gain_per_party": 31.74300607345966,
+        "mean_cycle_length": 3.538812785388128,
+        "max_cycle_length": 4,
+        "mean_proposals": 5.475,
+        "mean_realisation": 0.6881909464285714,
+        "p95_seconds": 3.147080291993916
+      },
+      "unbounded": {
+        "improved_share": 0.6154734411085451,
+        "adjacency_success": 0.5177419354838709,
+        "realised_adjacency_success": 0.03804536368808299,
+        "gain_per_party": 64.9243648960739,
+        "realised_gain_per_party": 4.770853789118825,
+        "mean_cycle_length": 26.0,
+        "max_cycle_length": 32,
+        "mean_proposals": 1.025,
+        "mean_realisation": 0.07348325696763694,
+        "p95_seconds": 2.0395085829950403
+      },
+      "pairwise": {
+        "improved_share": 0.37990762124711314,
+        "adjacency_success": 0.15645161290322582,
+        "realised_adjacency_success": 0.12085658992086473,
+        "gain_per_party": 33.09411085450346,
+        "realised_gain_per_party": 25.564718126698814,
+        "mean_cycle_length": 2.437037037037037,
+        "max_cycle_length": 9,
+        "mean_proposals": 6.75,
+        "mean_realisation": 0.7724854201127436,
+        "p95_seconds": 0.8939414579945151
+      }
+    }
+  },
+  {
+    "participation": 0.38,
+    "flights": 40,
+    "mean_parties": 45.6,
+    "by_strategy": {
+      "chains": {
+        "improved_share": 0.43640350877192985,
+        "adjacency_success": 0.30672926447574334,
+        "realised_adjacency_success": 0.20907622183098593,
+        "gain_per_party": 46.37828947368421,
+        "realised_gain_per_party": 31.61288687179864,
+        "mean_cycle_length": 3.634703196347032,
+        "max_cycle_length": 4,
+        "mean_proposals": 5.475,
+        "mean_realisation": 0.6816311517857143,
+        "p95_seconds": 2.7154450000089128
+      },
+      "unbounded": {
+        "improved_share": 0.6134868421052632,
+        "adjacency_success": 0.543035993740219,
+        "realised_adjacency_success": 0.035649535831714804,
+        "gain_per_party": 65.54660087719299,
+        "realised_gain_per_party": 4.303040541611774,
+        "mean_cycle_length": 27.29268292682927,
+        "max_cycle_length": 35,
+        "mean_proposals": 1.025,
+        "mean_realisation": 0.06564856886589557,
+        "p95_seconds": 2.5488337080169003
+      },
+      "pairwise": {
+        "improved_share": 0.3673245614035088,
+        "adjacency_success": 0.16118935837245696,
+        "realised_adjacency_success": 0.12402575156989437,
+        "gain_per_party": 32.61074561403509,
+        "realised_gain_per_party": 25.09205492765613,
+        "mean_cycle_length": 2.463235294117647,
+        "max_cycle_length": 9,
+        "mean_proposals": 6.8,
+        "mean_realisation": 0.7694413131375001,
+        "p95_seconds": 1.0617312499962281
+      }
+    }
+  },
+  {
+    "participation": 0.4,
+    "flights": 40,
+    "mean_parties": 48.325,
+    "by_strategy": {
+      "chains": {
+        "improved_share": 0.42007242628039315,
+        "adjacency_success": 0.3262108262108262,
+        "realised_adjacency_success": 0.22114448214285715,
+        "gain_per_party": 45.204862907397825,
+        "realised_gain_per_party": 30.645230613942058,
+        "mean_cycle_length": 3.67420814479638,
+        "max_cycle_length": 4,
+        "mean_proposals": 5.525,
+        "mean_realisation": 0.6779188928571429,
+        "p95_seconds": 5.256862790993182
+      },
+      "unbounded": {
+        "improved_share": 0.6057941024314537,
+        "adjacency_success": 0.5669515669515669,
+        "realised_adjacency_success": 0.03317500203373484,
+        "gain_per_party": 65.76720124159338,
+        "realised_gain_per_party": 3.8483481872611116,
+        "mean_cycle_length": 28.5609756097561,
+        "max_cycle_length": 37,
+        "mean_proposals": 1.025,
+        "mean_realisation": 0.058514702079602667,
+        "p95_seconds": 9.01477216699277
+      },
+      "pairwise": {
+        "improved_share": 0.3662700465597517,
+        "adjacency_success": 0.1737891737891738,
+        "realised_adjacency_success": 0.13428027486197672,
+        "gain_per_party": 32.53905845835489,
+        "realised_gain_per_party": 25.141691040193045,
+        "mean_cycle_length": 2.466898954703833,
+        "max_cycle_length": 10,
+        "mean_proposals": 7.175,
+        "mean_realisation": 0.7726619094517021,
+        "p95_seconds": 1.1643746249901596
+      }
+    }
+  }
+]

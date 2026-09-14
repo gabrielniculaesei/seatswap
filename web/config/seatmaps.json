@@ -1,0 +1,47 @@
+{
+  "B738": {
+    "label": "Boeing 737-800",
+    "rows": 33,
+    "columns": ["A", "B", "C", "D", "E", "F"],
+    "aisle_after": "C",
+    "exit_rows": [16, 17],
+    "lavatory_rows": [1, 32, 33],
+    "no_recline_rows": [15, 33]
+  },
+  "B38M": {
+    "label": "Boeing 737-8200",
+    "rows": 32,
+    "columns": ["A", "B", "C", "D", "E", "F"],
+    "aisle_after": "C",
+    "exit_rows": [16, 17],
+    "lavatory_rows": [1, 31, 32],
+    "no_recline_rows": [15, 32]
+  },
+  "A320": {
+    "label": "Airbus A320",
+    "rows": 31,
+    "columns": ["A", "B", "C", "D", "E", "F"],
+    "aisle_after": "C",
+    "exit_rows": [12, 13],
+    "lavatory_rows": [1, 30, 31],
+    "no_recline_rows": [11, 31]
+  },
+  "A321": {
+    "label": "Airbus A321",
+    "rows": 38,
+    "columns": ["A", "B", "C", "D", "E", "F"],
+    "aisle_after": "C",
+    "exit_rows": [13, 26, 27],
+    "lavatory_rows": [1, 37, 38],
+    "no_recline_rows": [12, 25, 38]
+  },
+  "_default": {
+    "label": "Generic narrow-body",
+    "rows": 32,
+    "columns": ["A", "B", "C", "D", "E", "F"],
+    "aisle_after": "C",
+    "exit_rows": [],
+    "lavatory_rows": [],
+    "no_recline_rows": []
+  }
+}

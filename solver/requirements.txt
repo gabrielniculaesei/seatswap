@@ -1,0 +1,11 @@
+# The CP-SAT solver itself.
+ortools>=9.10
+
+# Postgres driver. Not used until M3 (worker.py and the job queue); listed here
+# because it is part of the declared stack and the worker image installs from
+# this file.
+psycopg[binary]>=3.1
+
+# Simulator and tests only.
+matplotlib>=3.8
+pytest>=8.0

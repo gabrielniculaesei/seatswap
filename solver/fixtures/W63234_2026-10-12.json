@@ -1,0 +1,15 @@
+[
+  {
+    "number": "W6 3234",
+    "status": "Scheduled",
+    "departure": {
+      "airport": { "iata": "OTP", "name": "Bucharest Henri Coanda" },
+      "scheduledTime": { "utc": "2026-10-12 05:40Z", "local": "2026-10-12 08:40+03:00" }
+    },
+    "arrival": {
+      "airport": { "iata": "BGY", "name": "Milan Bergamo" },
+      "scheduledTime": { "utc": "2026-10-12 07:35Z", "local": "2026-10-12 09:35+02:00" }
+    },
+    "aircraft": { "model": "Airbus A321" }
+  }
+]
