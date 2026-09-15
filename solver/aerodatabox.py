@@ -2,8 +2,9 @@
 
 The one rule that is not negotiable: **one call per flight, never one per user.**
 The result is cached on the `flights` row and every later reader uses that. The
-free tier is around 600 units a month; with this rule that covers hundreds of
-flights, without it you burn through it in an afternoon.
+free Basic plan on RapidAPI is 400 units a month and the flight-status endpoint
+is Tier 2, two units a call: about 200 new flights a month. With this rule that
+is a real launch; without it you burn through it in an afternoon.
 
 This is the only place in the codebase that talks to AeroDataBox. The web tier
 never calls it in-request - it creates the flight row as 'unknown' and queues a
@@ -15,8 +16,19 @@ If the API is down, slow, or has never heard of the flight: **degrade, do not
 block.** `api_status` becomes 'unknown', the seat map falls back to `_default`,
 and the user takes part anyway.
 
-In development and in tests, `AERODATABOX_MODE=fixture` reads from
-solver/fixtures/ and never opens a socket.
+Three modes, from `AERODATABOX_MODE`:
+
+  off      no calls at all; every flight is 'unknown'. The default, and the right
+           setting until there is a key: the date-based estimate in
+           estimated_schedule() keeps every flight working.
+  fixture  reads solver/fixtures/, never opens a socket. Development and tests.
+  live     calls the API with RAPIDAPI_KEY.
+
+`off` is the default, not `fixture`, because the fixture's `_default.json`
+answers for *every* flight with an invented route, aircraft and departure time
+and marks it verified. A deploy that forgot to set the mode would have told the
+world, in structured data, that every flight leaves at 05:40 — and scheduled
+each flight's GDPR purge from that invented time.
 """
 
 from __future__ import annotations
@@ -125,8 +137,49 @@ def _parse_utc(value: str | None) -> datetime | None:
     return parsed.astimezone(timezone.utc)
 
 
+@dataclass(frozen=True)
+class EstimatedSchedule:
+    """Stand-in times for a flight whose departure we never learned."""
+
+    #: When the web shows the seat form and the bot asks for seats.
+    checkin_opens_utc: datetime
+    #: Plays the departure's part in scheduling the T-20h/12h/4h match runs.
+    anchor_utc: datetime
+    #: When purge_flight deletes everything personal about the flight.
+    purge_utc: datetime
+
+
+def estimated_schedule(carrier: str, departure_date: date) -> EstimatedSchedule:
+    """A schedule from the departure *date* alone, for when the API gave no time.
+
+    Without it an unverified flight had no lifecycle at all: no check-in reminder,
+    no seat form, no scheduled match runs — and no purge_flight, so its personal
+    data was never deleted. "Degrade, do not block" (CLAUDE.md §11) has to cover
+    the clock too, not just the seat map.
+
+    Each time errs in the direction that is safe for what it drives:
+
+      * check-in and match runs are anchored to 00:00 UTC on the departure date,
+        about the earliest a European departure can be. The reminder may come a
+        few hours before check-in really opens — its wording says "today" — but
+        every scheduled run lands before the first flight of that day leaves.
+      * the purge is anchored to the *latest* the flight could possibly depart,
+        23:59 local time at UTC-12, which is 36 hours after that midnight, plus
+        the usual 24. Deleting late is a bug; deleting early would destroy
+        someone's agreed swap before they board.
+    """
+    midnight = datetime(
+        departure_date.year, departure_date.month, departure_date.day, tzinfo=timezone.utc
+    )
+    return EstimatedSchedule(
+        checkin_opens_utc=checkin_opens(carrier, midnight),
+        anchor_utc=midnight,
+        purge_utc=midnight + timedelta(hours=36 + 24),
+    )
+
+
 def mode() -> str:
-    return os.environ.get("AERODATABOX_MODE", "fixture").strip().lower()
+    return os.environ.get("AERODATABOX_MODE", "off").strip().lower()
 
 
 # ----------------------------------------------------------------------- lookup
@@ -135,8 +188,13 @@ def lookup(carrier: str, flight_number: str, departure_date: date) -> FlightInfo
     designator = f"{carrier.upper()}{flight_number}"
     iso_date = departure_date.isoformat()
 
+    current = mode()
+    if current not in ("fixture", "live"):
+        # 'off', and anything misspelt: never call out on a guess.
+        return UNKNOWN
+
     try:
-        if mode() == "fixture":
+        if current == "fixture":
             payload = _read_fixture(designator, iso_date)
         else:
             payload = _fetch_live(designator, iso_date)

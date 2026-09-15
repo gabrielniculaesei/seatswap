@@ -10,7 +10,7 @@ import pytest
 
 from cycles import decompose
 from model import Member, Party, SolveConfig, SolverInputError, build_pool, solve
-from seatmap import are_adjacent
+from seatmap import are_adjacent, is_exit_row
 from utility import PreferenceWeights, party_utility
 
 WINDOW_SEEKER = PreferenceWeights(w_window=60, w_avoid_middle=40)
@@ -92,8 +92,13 @@ def _random_flight(rng: random.Random, seat_map, n_parties: int):
                 w_adjacency=rng.choice([0, 40, 200]),
                 w_window=rng.choice([0, 60]),
             )
+        children = rng.choice([0, 0, 1]) if size >= 2 else 0
         parties.append(
-            Party(party_id, members, weights, verification_tier=rng.choice([0, 0, 1, 2]))
+            Party(
+                party_id, members, weights,
+                verification_tier=rng.choice([0, 0, 1, 2]),
+                children=children,
+            )
         )
     return parties
 
@@ -128,6 +133,14 @@ def test_properties_hold_on_random_flights(seed, b738):
         # minimum gain for anyone who moves
         if set(new_seats) != set(party.current_seats):
             assert gain >= FAST.min_gain
+        # (8) never more of a family in exit rows than can legally sit there, or
+        # than already did
+        if party.children:
+            allowed = max(
+                party.size - party.children,
+                sum(is_exit_row(s, b738) for s in party.current_seats),
+            )
+            assert sum(is_exit_row(s, b738) for s in new_seats) <= allowed
 
 
 @pytest.mark.parametrize("seed", range(10))
@@ -152,6 +165,59 @@ def test_cycles_partition_every_move(seed, b738):
         assert not (seen & set(cycle.party_ids))
         seen.update(cycle.party_ids)
         assert {m.from_seat for m in cycle.moves} == {m.to_seat for m in cycle.moves}
+
+
+# ------------------------------------------------------ (8) children, exit rows
+# Row 16 of the B738 map is an exit row. The single in 16B sits in a middle and
+# would happily take the pair's aisle at 20C, which reunites the pair in 16A-16B.
+
+
+def _family_split_across_an_exit_row(children: int):
+    pair = Party(1, (Member(1, "16A"), Member(2, "20C")), SPLIT_PAIR, children=children)
+    single = Party(2, (Member(3, "16B"),), WINDOW_SEEKER)
+    return [pair, single]
+
+
+def test_adults_may_reunite_in_an_exit_row(b738):
+    """The control: without a child the obvious swap happens."""
+    result = solve(_family_split_across_an_exit_row(children=0), b738, FAST)
+    assert sorted([result.assignment[1], result.assignment[2]]) == ["16A", "16B"]
+    assert result.party_gains[1] == 200
+
+
+def test_a_child_is_never_moved_into_an_exit_row(b738):
+    """Same seats, same wishes, one of the pair is under 16: crew would refuse
+    16A-16B at the door, so it is never proposed (constraint 8)."""
+    result = solve(_family_split_across_an_exit_row(children=1), b738, FAST)
+    assert result.feasible
+    family_seats = [result.assignment[1], result.assignment[2]]
+    assert sum(is_exit_row(s, b738) for s in family_seats) <= 1
+    assert result.party_gains[1] == 0, "the only reunion on offer is illegal"
+
+
+def test_a_family_can_still_reunite_outside_the_exit_row(b738):
+    """The constraint forbids a seat, not a reunion: move the family out of row 16
+    and the same trade works, with the single taking the exit-row window."""
+    pair = Party(1, (Member(1, "16A"), Member(2, "20C")), SPLIT_PAIR, children=1)
+    single = Party(2, (Member(3, "20B"),), WINDOW_SEEKER)
+    result = solve([pair, single], b738, FAST)
+    assert sorted([result.assignment[1], result.assignment[2]]) == ["20B", "20C"]
+    assert result.assignment[3] == "16A"
+
+
+def test_a_family_already_in_an_exit_row_does_not_break_the_flight(b738):
+    """The airline put a family of three with two children in 16A-16C, or they
+    typed their seats wrong. That is not ours to fix, and it must not make the
+    solve infeasible for everyone else on the flight."""
+    family = Party(
+        1, (Member(1, "16A"), Member(2, "16B"), Member(3, "16C")),
+        SPLIT_PAIR, children=2,
+    )
+    pair = Party(2, (Member(4, "14A"), Member(5, "20C")), SPLIT_PAIR)
+    single = Party(3, (Member(6, "14B"),), WINDOW_SEEKER)
+    result = solve([family, pair, single], b738, FAST)
+    assert result.feasible
+    assert result.party_gains[2] == 200, "the rest of the flight still swaps"
 
 
 # ------------------------------------------------------------------ MIN_GAIN

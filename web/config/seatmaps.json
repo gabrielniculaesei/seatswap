@@ -40,7 +40,7 @@
     "rows": 32,
     "columns": ["A", "B", "C", "D", "E", "F"],
     "aisle_after": "C",
-    "exit_rows": [],
+    "exit_rows": [12, 13, 16, 17, 26, 27],
     "lavatory_rows": [],
     "no_recline_rows": []
   }

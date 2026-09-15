@@ -59,9 +59,17 @@ def verify_flight(cursor, job: Job) -> dict:
 
     info = aerodatabox.lookup(flight.carrier, flight.flight_number, flight.departure_date)
 
-    checkin = None
     if info.scheduled_departure_utc is not None:
         checkin = aerodatabox.checkin_opens(flight.carrier, info.scheduled_departure_utc)
+        anchor = info.scheduled_departure_utc
+        purge_at = None  # departure + 24h, the normal rule
+    else:
+        # No time from the API: estimate from the date, or this flight would
+        # never get a reminder, a match run or — worst — a purge.
+        estimate = aerodatabox.estimated_schedule(flight.carrier, flight.departure_date)
+        checkin = estimate.checkin_opens_utc
+        anchor = estimate.anchor_utc
+        purge_at = estimate.purge_utc
 
     cursor.execute(
         """
@@ -88,9 +96,9 @@ def verify_flight(cursor, job: Job) -> dict:
         ),
     )
 
-    queued = job_queue.schedule_flight_jobs(
-        cursor, flight_id, checkin, info.scheduled_departure_utc
-    )
+    # scheduled_departure_utc above stays NULL when estimated: it is shown to
+    # users and put in structured data, and a guess must not pass for a fact.
+    queued = job_queue.schedule_flight_jobs(cursor, flight_id, checkin, anchor, purge_at=purge_at)
     return {
         "flight_id": flight_id,
         "api_status": info.status,
@@ -113,8 +121,13 @@ def checkin_reminder(cursor, job: Job) -> dict:
         return {"skipped": "flight no longer exists", "flight_id": flight_id}
 
     waiting = repository.parties_awaiting_seats(cursor, flight_id)
+    departure_date = flight.departure_date.isoformat()
     text = telegram.format_checkin_reminder(
-        flight.designator, flight.departure_date.isoformat()
+        flight.designator,
+        departure_date,
+        f"{_base_url()}/f/{flight.carrier}-{flight.flight_number}/{departure_date}",
+        # No departure time means the reminder was scheduled from an estimate.
+        estimated=flight.scheduled_departure_utc is None,
     )
 
     sent = 0
@@ -262,15 +275,19 @@ def expire_proposals(cursor, job: Job) -> dict:
 
     Re-queues itself, so the sweeper keeps running without a cron entry. Anything
     freed here gets picked up by the next scheduled match run.
+
+    It is also the one job guaranteed to keep running, so it carries the other
+    periodic sweep: aged-out flight_creations rows (CLAUDE.md §13).
     """
     expired = repository.expire_due_proposals(cursor)
+    pruned = repository.prune_flight_creations(cursor)
     job_queue.enqueue(
         cursor,
         "expire_proposals",
         {},
         _now(cursor) + EXPIRE_INTERVAL,
     )
-    return {"expired": len(expired)}
+    return {"expired": len(expired), "flight_creations_pruned": pruned}
 
 
 def _now(cursor):

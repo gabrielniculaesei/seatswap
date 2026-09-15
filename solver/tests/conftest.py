@@ -14,7 +14,11 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 MIGRATIONS = REPO_ROOT / "db" / "migrations"
 
 #: Tables holding test data, in an order that is safe to truncate together.
-DATA_TABLES = ("jobs", "flight_stats", "flights")
+DATA_TABLES = ("jobs", "flight_stats", "flight_creations", "flights")
+
+# The wrapper defaults to 'off' so a deploy that forgets the setting makes no
+# calls and invents no data. The tests want the fixtures, so they ask for them.
+os.environ.setdefault("AERODATABOX_MODE", "fixture")
 
 
 @pytest.fixture

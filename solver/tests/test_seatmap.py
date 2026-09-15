@@ -204,6 +204,18 @@ def test_none_degrades_to_default():
     assert load_seat_map(None).estimated is True
 
 
+def test_unknown_aircraft_treats_every_known_exit_row_as_one():
+    """Exit rows feed exactly one thing, the rule that keeps children out of them
+    (model.py, constraint 8). On an aircraft we could not identify the only safe
+    guess is "any row that is an exit on any layout we know", or that rule stops
+    protecting anyone the moment the API has no answer. Adding a layout with new
+    exit rows means adding them to `_default` too; this is the reminder."""
+    default_exits = set(load_seat_map(None).exit_rows)
+    for key in seat_map_keys():
+        missing = set(load_seat_map(key).exit_rows) - default_exits
+        assert not missing, f"_default is missing {key}'s exit rows {sorted(missing)}"
+
+
 def test_all_configured_maps_are_well_formed():
     for key in seat_map_keys() + [DEFAULT_SEAT_MAP_KEY]:
         seat_map = load_seat_map(key) if key != DEFAULT_SEAT_MAP_KEY else load_seat_map(None)

@@ -12,6 +12,12 @@ Two constraints carry the whole social design of the product:
       somebody for nothing just to unlock somebody else, which would be a favour
       wearing a disguise.
 
+And one that carries a rule of the air rather than of the product:
+
+  (8) no child in an exit row - a party with k members under 16 holds at most
+      size - k exit-row seats. A swap cabin crew would refuse at the door is not
+      a swap.
+
 All arithmetic is integer. CP-SAT does not take floats, and the "x1.05 per
 verification tier" bonus from the spec is expressed as x(20 + tier)/20 by scaling
 the whole objective by 20.
@@ -24,7 +30,7 @@ from dataclasses import dataclass, field
 
 from ortools.sat.python import cp_model
 
-from seatmap import SeatMap, contiguous_blocks, parse_seat, seat_sort_key
+from seatmap import SeatMap, contiguous_blocks, is_exit_row, parse_seat, seat_sort_key
 from utility import PreferenceWeights, party_utility, seat_utility
 
 #: The objective is scaled by this so the 5%-per-tier bonus stays integral.
@@ -43,6 +49,10 @@ class Party:
     members: tuple[Member, ...]
     weights: PreferenceWeights
     verification_tier: int = 0
+    #: Members under 16, who may not sit in an exit row. A count rather than a
+    #: per-member flag: nobody tells us whose seat is whose, and it does not
+    #: matter, because a party decides among itself who takes which seat.
+    children: int = 0
 
     @property
     def size(self) -> int:
@@ -51,6 +61,21 @@ class Party:
     @property
     def current_seats(self) -> list[str]:
         return [m.current_seat for m in self.members]
+
+
+def exit_row_allowance(party: Party, seat_map: SeatMap) -> int | None:
+    """How many exit-row seats this party may end up holding; None if unlimited.
+
+    size - children, so every child can take one of the party's other seats. But
+    never less than the party holds right now: if the airline has already put a
+    family in an exit row (or the seats were typed wrong), the identity
+    assignment must stay feasible, or the whole flight's solve would fail over one
+    party. Constraint (8) forbids making it worse, which is all we can promise.
+    """
+    if party.children <= 0 or not seat_map.exit_rows:
+        return None
+    already = sum(1 for seat in party.current_seats if is_exit_row(seat, seat_map))
+    return max(party.size - party.children, already)
 
 
 @dataclass(frozen=True)
@@ -202,6 +227,15 @@ def solve(
         # ---- (7) if you move, you gain something worth the trouble ------------
         model.Add(party_gain >= config.min_gain * moved[party.id])
 
+        # ---- (8) no child in an exit row -------------------------------------
+        allowance = exit_row_allowance(party, seat_map)
+        if allowance is not None:
+            exit_seats = [j for j, seat in enumerate(seats) if is_exit_row(seat, seat_map)]
+            if exit_seats:
+                model.Add(
+                    sum(x[mid][j] for mid in member_ids for j in exit_seats) <= allowance
+                )
+
         tier_factor = TIER_SCALE + max(0, min(2, party.verification_tier))
         objective_terms.append(tier_factor * party_gain)
 
@@ -243,7 +277,7 @@ def solve(
 
     if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         # INFEASIBLE cannot normally happen: the identity permutation always
-        # satisfies (1)-(7). Treat it as "no swap today" and move on.
+        # satisfies (1)-(8). Treat it as "no swap today" and move on.
         return SolveResult(status=status_name, stats=stats)
 
     stats["objective"] = int(solver.ObjectiveValue())
@@ -258,7 +292,7 @@ def solve(
     assignment = _canonicalise_internal_swaps(parties, assignment)
     party_gains = _recompute_gains(parties, assignment, seat_map)
 
-    _assert_sound(parties, assignment, party_gains, seats, config)
+    _assert_sound(parties, assignment, party_gains, seats, config, seat_map)
 
     return SolveResult(
         status=status_name,
@@ -312,6 +346,7 @@ def _assert_sound(
     party_gains: dict[int, int],
     seats: list[str],
     config: SolveConfig,
+    seat_map: SeatMap,
 ) -> None:
     """Cheap invariants, checked on every run rather than only in tests."""
     assigned = list(assignment.values())
@@ -330,3 +365,11 @@ def _assert_sound(
             raise AssertionError(
                 f"party {party.id} moves for only {gain} (< MIN_GAIN {config.min_gain})"
             )
+        allowance = exit_row_allowance(party, seat_map)
+        if allowance is not None:
+            in_exit = sum(1 for m in party.members if is_exit_row(assignment[m.id], seat_map))
+            if in_exit > allowance:
+                raise AssertionError(
+                    f"party {party.id} has {party.children} children and would hold "
+                    f"{in_exit} exit-row seats (allowed {allowance})"
+                )

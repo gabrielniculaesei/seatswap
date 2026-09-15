@@ -69,7 +69,7 @@ def load_active_parties(cursor: psycopg.Cursor, flight_id: int) -> list[Party]:
         SELECT p.id,
                p.w_window, p.w_aisle, p.w_front,
                p.w_avoid_middle, p.w_avoid_lavatory, p.w_adjacency,
-               p.verification_tier,
+               p.verification_tier, p.children,
                array_agg(m.id ORDER BY m.id)           AS member_ids,
                array_agg(m.current_seat ORDER BY m.id) AS seats
           FROM parties p
@@ -103,6 +103,7 @@ def load_active_parties(cursor: psycopg.Cursor, flight_id: int) -> list[Party]:
                     w_adjacency=row["w_adjacency"],
                 ),
                 verification_tier=row["verification_tier"],
+                children=row["children"],
             )
         )
     return parties
@@ -301,6 +302,26 @@ def parties_awaiting_seats(cursor: psycopg.Cursor, flight_id: int) -> list[dict]
         (flight_id,),
     )
     return cursor.fetchall()
+
+
+FLIGHT_CREATION_RETENTION = "2 days"
+
+
+def prune_flight_creations(cursor: psycopg.Cursor) -> int:
+    """Delete flight_creations rows past any use; return how many went.
+
+    The web tier prunes this table every time a flight is created
+    (web/lib/flight-quota.ts), which keeps it a day deep while the site is busy.
+    This is the backstop for when it is not: without it, a quiet week would keep
+    the last few Telegram ids indefinitely, and the privacy policy says they go
+    after about a day (CLAUDE.md §13). Two days, not one, so this can never
+    disagree with the 24-hour quota window about a row that still counts.
+    """
+    cursor.execute(
+        "DELETE FROM flight_creations WHERE created_at <= now() - %s::interval",
+        (FLIGHT_CREATION_RETENTION,),
+    )
+    return cursor.rowcount
 
 
 def purge_flight(cursor: psycopg.Cursor, flight_id: int) -> dict:

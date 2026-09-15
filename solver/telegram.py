@@ -155,13 +155,41 @@ def format_proposal(
     )
 
 
-def format_checkin_reminder(designator: str, departure_date: str) -> str:
-    return (
-        f"Check-in is open for <b>{designator}</b> on {departure_date}.\n\n"
-        f"Send me your seat numbers and I will look for a swap — "
-        f"just the seats, like <code>14A</code> or <code>14A, 22F</code>.\n\n"
-        f"You can also send a photo or PDF of your boarding pass."
+def format_checkin_reminder(
+    designator: str,
+    departure_date: str,
+    flight_url: str | None = None,
+    estimated: bool = False,
+) -> str:
+    """The message that opens phase two (CLAUDE.md §7.5).
+
+    It offers typing, because typing is the ten-second answer this whole design
+    exists to protect. The boarding-pass route is a link rather than "send me a
+    photo": a barcode mailed to the bot would be a barcode on our servers, and
+    CLAUDE.md §10 and §13.1 both say it is read in the browser and never sent.
+
+    `estimated` means we never learned the departure time and are sending this at
+    the earliest check-in could open (aerodatabox.estimated_schedule). "Check-in
+    is open" might then be a few hours early, so it says what we actually know.
+    """
+    opening = (
+        f"Check-in for <b>{designator}</b> on {departure_date} opens around now. "
+        f"Once the airline has given you a seat, send it to me and I will look "
+        f"for a swap"
+        if estimated
+        else f"Check-in is open for <b>{designator}</b> on {departure_date}.\n\n"
+        f"Send me your seat numbers and I will look for a swap"
     )
+    text = (
+        f"{opening} — just the seats, like <code>14A</code> or <code>14A, 22F</code>."
+    )
+    if flight_url:
+        text += (
+            f"\n\nRather scan your boarding pass? Do it on the flight page: "
+            f"{flight_url}\nIt reads the barcode in your browser, fills the seats "
+            f"in for you, and earns a checked badge."
+        )
+    return text
 
 
 def format_agreement(base_url: str, token_value: str) -> str:

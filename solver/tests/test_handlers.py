@@ -50,6 +50,7 @@ def make_party(
     columns = {
         "w_window": 0, "w_aisle": 0, "w_front": 0,
         "w_avoid_middle": 0, "w_avoid_lavatory": 0, "w_adjacency": 0,
+        "children": 0,
     }
     columns.update(weights)
     cursor.execute(
@@ -126,6 +127,55 @@ def test_verify_flight_degrades_when_the_flight_is_unknown(cursor):
     row = cursor.fetchone()
     assert row["api_status"] == "not_found"
     assert row["seat_map_key"] is None  # load_seat_map(None) -> estimated layout
+
+
+def test_an_unknown_flight_still_gets_its_whole_lifecycle(cursor):
+    """Before 2026-09-15 a flight with no departure time from the API got no jobs
+    at all: no reminder, no match runs, and no purge, so its personal data was
+    kept forever. It now gets the lot, from the date alone."""
+    flight_id = make_flight(cursor, "XX", "9999", date(2026, 10, 12))
+    handlers.verify_flight(cursor, job("verify_flight", {"flight_id": flight_id}))
+
+    cursor.execute("SELECT type, run_after FROM jobs ORDER BY run_after")
+    jobs = cursor.fetchall()
+    assert [r["type"] for r in jobs] == [
+        "checkin_reminder", "match_run", "match_run", "match_run", "purge_flight",
+    ]
+
+    midnight = datetime(2026, 10, 12, tzinfo=timezone.utc)
+    by_type = {r["type"]: r["run_after"] for r in jobs}
+    # XX is not in carriers.json, so the default 24-hour check-in policy applies.
+    assert by_type["checkin_reminder"] == midnight - timedelta(hours=24)
+    # Every scheduled run lands before the first flight of the day can leave...
+    assert all(r["run_after"] < midnight for r in jobs if r["type"] == "match_run")
+    # ...and the purge after the last one possibly could, plus a day.
+    assert by_type["purge_flight"] == midnight + timedelta(hours=60)
+
+    cursor.execute(
+        "SELECT scheduled_departure_utc, checkin_opens_utc FROM flights WHERE id = %s",
+        (flight_id,),
+    )
+    row = cursor.fetchone()
+    assert row["scheduled_departure_utc"] is None, "an estimate is never stored as a fact"
+    assert row["checkin_opens_utc"] == midnight - timedelta(hours=24), "the web can open"
+
+
+def test_off_mode_makes_no_call_and_still_schedules(cursor, monkeypatch):
+    """Running with no API key at all: every flight unknown, every flight working."""
+    monkeypatch.setenv("AERODATABOX_MODE", "off")
+    flight_id = make_flight(cursor, "W6", "3234", date(2026, 10, 12))
+    result = handlers.verify_flight(cursor, job("verify_flight", {"flight_id": flight_id}))
+
+    assert result["api_status"] == "unknown", "the W6 fixture exists but must not be read"
+    assert result["jobs_scheduled"] == 5
+
+
+def test_the_reminder_does_not_overclaim_on_an_estimate():
+    known = telegram.format_checkin_reminder("W6 3234", "2026-10-12")
+    guessed = telegram.format_checkin_reminder("W6 3234", "2026-10-12", estimated=True)
+    assert "Check-in is open" in known
+    assert "Check-in is open" not in guessed
+    assert "opens around now" in guessed
 
 
 def test_verify_flight_on_a_deleted_flight_is_a_no_op(cursor):
@@ -303,6 +353,23 @@ def test_expire_proposals_requeues_itself(cursor):
     rows = cursor.fetchall()
     assert len(rows) == 1
     assert rows[0]["run_after"] > datetime.now(timezone.utc)
+
+
+def test_expire_proposals_prunes_old_flight_creations(cursor):
+    """The backstop for a quiet site: no Telegram id outlives the quota window
+    by more than a day, even if nobody creates a flight to trigger the web
+    tier's own pruning (CLAUDE.md §13)."""
+    cursor.execute(
+        "INSERT INTO flight_creations (telegram_user_id, created_at) VALUES "
+        "(111, now() - interval '3 days'), (222, now() - interval '1 hour')"
+    )
+    result = handlers.expire_proposals(cursor, job("expire_proposals", {}))
+
+    assert result["flight_creations_pruned"] == 1
+    cursor.execute("SELECT telegram_user_id FROM flight_creations")
+    assert [r["telegram_user_id"] for r in cursor.fetchall()] == [222], (
+        "a row still inside the quota window must survive"
+    )
 
 
 # ---------------------------------------------------------------- purge_flight

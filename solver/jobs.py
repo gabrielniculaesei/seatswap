@@ -169,12 +169,17 @@ def schedule_flight_jobs(
     flight_id: int,
     checkin_opens_utc: datetime | None,
     scheduled_departure_utc: datetime | None,
+    purge_at: datetime | None = None,
 ) -> list[int]:
     """Queue the whole lifecycle of a flight once its times are known.
 
     Called by verify_flight. The scheduled match runs are the ones that matter:
     T-20h, T-12h and T-4h, when the pool is deep enough to be worth solving
     (CLAUDE.md §14).
+
+    `scheduled_departure_utc` may be an estimate (aerodatabox.estimated_schedule),
+    in which case the purge time comes separately in `purge_at`, because the
+    purge must err late where everything else errs early.
     """
     queued = []
     if checkin_opens_utc is not None:
@@ -201,7 +206,7 @@ def schedule_flight_jobs(
             cursor,
             "purge_flight",
             {"flight_id": flight_id},
-            scheduled_departure_utc + timedelta(hours=24),
+            purge_at or scheduled_departure_utc + timedelta(hours=24),
         )
         if job_id:
             queued.append(job_id)
