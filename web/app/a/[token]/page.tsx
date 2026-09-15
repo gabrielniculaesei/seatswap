@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
+import VerificationBadge from '../../../components/VerificationBadge.tsx';
 import { loadProposalByToken, movesFor } from '../../../lib/proposals.ts';
 
 /**
@@ -21,6 +22,9 @@ interface RouteParams {
 
 /** Never let an agreement into a search index. */
 export const metadata: Metadata = {
+  // Generic on purpose: the title travels into browser history and link
+  // previews, and names or seats have no business there.
+  title: 'Agreed swap',
   robots: { index: false, follow: false },
 };
 
@@ -30,9 +34,10 @@ export default async function AgreementPage({ params }: RouteParams) {
   if (!proposal || proposal.status !== 'accepted') notFound();
 
   const moves = await movesFor(proposal.id);
-  const byParty = new Map<number, { name: string; moves: typeof moves }>();
+  const byParty = new Map<number, { name: string; tier: number; moves: typeof moves }>();
   for (const move of moves) {
-    const entry = byParty.get(move.party_id) ?? { name: move.display_name, moves: [] };
+    const entry = byParty.get(move.party_id)
+      ?? { name: move.display_name, tier: move.verification_tier, moves: [] };
     entry.moves.push(move);
     byParty.set(move.party_id, entry);
   }
@@ -54,7 +59,10 @@ export default async function AgreementPage({ params }: RouteParams) {
       <section className="divide-y divide-line rounded-lg border border-line">
         {[...byParty.values()].map((party) => (
           <div key={party.name} className="p-5">
-            <p className="font-medium">{party.name}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="font-medium">{party.name}</p>
+              <VerificationBadge tier={party.tier} variant="compact" />
+            </div>
             <ul className="mt-2 space-y-1">
               {party.moves.map((move) => (
                 <li key={`${move.from_seat}-${move.to_seat}`} className="text-sm">

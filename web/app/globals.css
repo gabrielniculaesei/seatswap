@@ -9,3 +9,13 @@
 body {
   -webkit-font-smoothing: antialiased;
 }
+
+@layer base {
+  /* One visible focus ring for everything, keyboard or not. The inputs used to
+     set `outline-none` and rely on a 1px border colour change, which is easy to
+     miss and invisible on the choice buttons. */
+  :focus-visible {
+    outline: 2px solid theme('colors.accent.DEFAULT');
+    outline-offset: 2px;
+  }
+}

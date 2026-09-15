@@ -1,14 +1,19 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 import {
+  departureDateBounds,
   formatFlightSlug,
   normaliseFlightInput,
   parseDepartureDate,
   parseFlightSlug,
 } from '../lib/flight-id.ts';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'seatswap — swap into a better seat, for free',
+  // The home page is the site root; say so, so `/?error=1&flight=…` reruns of the
+  // search form cannot each become their own indexed near-duplicate.
+  alternates: { canonical: '/' },
 };
 
 /**
@@ -26,10 +31,24 @@ async function search(formData: FormData) {
   const departure = parseDepartureDate(date);
 
   if (!slug || !departure) {
-    redirect(`/?error=1&flight=${encodeURIComponent(raw)}&date=${encodeURIComponent(date)}`);
+    // Say which one was wrong. The flight number is the likelier culprit, so it
+    // wins when both are.
+    const error = slug ? 'date' : 'flight';
+    redirect(`/?error=${error}&flight=${encodeURIComponent(raw)}&date=${encodeURIComponent(date)}`);
   }
   redirect(`/f/${formatFlightSlug(slug.carrier, slug.flightNumber)}/${departure}`);
 }
+
+const ERRORS: Record<string, { field: 'flight' | 'date'; text: string }> = {
+  flight: {
+    field: 'flight',
+    text: 'That does not look like a flight number. It is the two-character airline code and then the number, like W6 3234 or FR 1234.',
+  },
+  date: {
+    field: 'date',
+    text: 'Pick a departure date between today and a year from now.',
+  },
+};
 
 export default async function HomePage({
   searchParams,
@@ -37,6 +56,8 @@ export default async function HomePage({
   searchParams: Promise<{ error?: string; flight?: string; date?: string }>;
 }) {
   const params = await searchParams;
+  const error = params.error ? (ERRORS[params.error] ?? ERRORS.flight) : null;
+  const bounds = departureDateBounds();
 
   return (
     <div className="space-y-10">
@@ -65,9 +86,15 @@ export default async function HomePage({
               id="flight"
               name="flight"
               required
+              maxLength={12}
               placeholder="W6 3234"
+              autoComplete="off"
+              autoCapitalize="characters"
+              spellCheck={false}
               defaultValue={params.flight ?? ''}
-              className="w-full rounded border border-line px-3 py-2 outline-none focus:border-accent"
+              aria-invalid={error?.field === 'flight' || undefined}
+              aria-describedby={error?.field === 'flight' ? 'search-error' : undefined}
+              className="w-full rounded border border-field px-3 py-2 focus:border-accent"
             />
           </div>
 
@@ -80,21 +107,24 @@ export default async function HomePage({
               name="date"
               type="date"
               required
+              min={bounds.min}
+              max={bounds.max}
               defaultValue={params.date ?? ''}
-              className="w-full rounded border border-line px-3 py-2 outline-none focus:border-accent"
+              aria-invalid={error?.field === 'date' || undefined}
+              aria-describedby={error?.field === 'date' ? 'search-error' : undefined}
+              className="w-full rounded border border-field bg-white px-3 py-2 focus:border-accent"
             />
           </div>
 
-          {params.error ? (
-            <p className="text-sm text-red-600">
-              That does not look like a flight number and a date in the next year.
-              Try something like <code>W6 3234</code> and a date.
+          {error ? (
+            <p id="search-error" role="alert" className="text-sm text-red-600">
+              {error.text}
             </p>
           ) : null}
 
           <button
             type="submit"
-            className="w-full rounded bg-accent px-4 py-2 font-medium text-white hover:opacity-90"
+            className="w-full rounded bg-accent px-4 py-2 font-medium text-white hover:bg-accent-dark"
           >
             Find my flight
           </button>
