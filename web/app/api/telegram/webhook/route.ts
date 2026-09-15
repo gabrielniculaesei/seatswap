@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { movesFor, respond } from '../../../../lib/proposals.ts';
-import { submitSeats } from '../../../../lib/seats.ts';
+import { candidateParties, submitSeats } from '../../../../lib/seats.ts';
 import { answerCallbackQuery, sendMessage } from '../../../../lib/telegram.ts';
 
 /**
@@ -31,6 +31,9 @@ function authorised(request: Request): boolean {
 interface Update {
   message?: {
     text?: string;
+    /** Present when somebody sends a boarding pass as an image. */
+    photo?: unknown[];
+    document?: { mime_type?: string };
     chat?: { id: number };
     from?: { id: number };
   };
@@ -71,13 +74,27 @@ const HELP =
   'Send me your seat numbers when check-in opens — just the seats, like '
   + '14A or 14A, 22F.\n\n'
   + 'If I find a swap where everyone comes out better off, you will get it here '
-  + 'with two buttons.';
+  + 'with two buttons.\n\n'
+  + 'You can also scan your boarding pass on your flight page, which fills the '
+  + 'seats in for you. Typing them works just as well.';
 
 async function handleMessage(message: NonNullable<Update['message']>) {
   const userId = message.from?.id;
   const chatId = message.chat?.id;
+  if (!userId || !chatId) return;
+
   const text = (message.text ?? '').trim();
-  if (!userId || !chatId || !text) return;
+  if (!text) {
+    // Somebody sent their boarding pass as a picture, which is the obvious thing
+    // to do and exactly what we cannot accept: a barcode sent to the bot is a
+    // barcode on our servers, and it is meant to be read in the browser and
+    // thrown away (CLAUDE.md §10, §13.1). Saying nothing would look broken, so
+    // send them to the page that can actually do it.
+    const looksLikeAPass =
+      (message.photo?.length ?? 0) > 0 || message.document !== undefined;
+    if (looksLikeAPass) await sendMessage(chatId, await boardingPassHelp(userId));
+    return;
+  }
 
   if (text.startsWith('/start') || text.startsWith('/help')) {
     await sendMessage(chatId, HELP);
@@ -86,6 +103,25 @@ async function handleMessage(message: NonNullable<Update['message']>) {
 
   const result = await submitSeats(userId, text);
   await sendMessage(chatId, result.message);
+}
+
+/** Point at the flight page, which reads the barcode without it ever leaving it. */
+async function boardingPassHelp(userId: number): Promise<string> {
+  const base = (process.env.PUBLIC_BASE_URL ?? '').replace(/\/$/, '');
+  const candidates = await candidateParties(userId);
+  const links = candidates
+    .map((c) => `${base}/f/${c.carrier}-${c.flight_number}/${c.departure_date}`)
+    .join('\n');
+
+  return (
+    'I cannot read boarding passes here on purpose — your barcode should never '
+    + 'reach our servers, so it is read in your browser instead.\n\n'
+    + (links
+      ? `Scan it on your flight page and the seats fill in for you:\n${links}\n\n`
+      : '')
+    + 'Or just type the seat numbers here, like 14A or 14A, 22F. That works just '
+    + 'as well.'
+  );
 }
 
 const CALLBACK = /^proposal:(\d+):(accept|reject)$/;

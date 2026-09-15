@@ -2,8 +2,8 @@
  * Questionnaire -> preference weights (CLAUDE.md §8).
  *
  * Never a slider, never free text. Three or four blunt questions that fill in the
- * weights. The answer IDs are stable and are what the UI stores; the labels are
- * translated by next-intl, so no user-facing copy lives in this file.
+ * weights. The answer IDs are stable and are what the UI stores; the wording lives
+ * in the components, so no user-facing copy lives in this file.
  */
 
 import type { PreferenceWeights } from '../lib/utility.ts';

@@ -9,8 +9,11 @@ import { submitSeats } from '../../../lib/seats.ts';
  *
  * The bot is the main path — it is the one that reaches you at check-in without
  * you having to remember anything (CLAUDE.md §7.5). This exists because somebody
- * who is already on the flight page should not have to go and find a chat window,
- * and because it is where a parsed boarding pass will post in M5.
+ * who is already on the flight page should not have to go and find a chat window.
+ *
+ * Seats arriving here are tier 0, taken on trust, and that is the normal case.
+ * Seats read off a boarding pass go to /api/verify instead, which carries parsed
+ * fields rather than free text and can therefore cross-check them (CLAUDE.md §10).
  */
 
 export const dynamic = 'force-dynamic';

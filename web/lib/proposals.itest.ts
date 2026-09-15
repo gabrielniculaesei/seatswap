@@ -28,7 +28,7 @@ after(async () => {
 
 beforeEach(async () => {
   if (skip) return;
-  await sql`TRUNCATE flights, jobs, flight_stats RESTART IDENTITY CASCADE`;
+  await sql`TRUNCATE flights, jobs, flight_stats, flight_creations RESTART IDENTITY CASCADE`;
 });
 
 /** A flight with a split pair and a single, seated and ready to solve. */
@@ -327,5 +327,95 @@ describe('submitSeats', { skip }, () => {
     // Naming the flight resolves it.
     const resolved = await seats.submitSeats(111, 'W6 3234: 14A, 20C');
     assert.equal(resolved.ok, true, resolved.message);
+  });
+});
+
+describe('leaveFlight', { skip }, () => {
+  const matchRuns = async () =>
+    Number((await sql<{ n: string }[]>`
+      SELECT count(*) AS n FROM jobs WHERE type = 'match_run'
+    `)[0].n);
+
+  test('there is nothing to leave on a flight you never joined', async () => {
+    const seed = await seedFlight();
+    const result = await proposals.leaveFlight(seed.flightId, 999);
+    assert.deepEqual(result, { left: false, affected: [] });
+  });
+
+  test('deletes the party and its members, and bothers nobody else', async () => {
+    const seed = await seedFlight();
+    const result = await proposals.leaveFlight(seed.flightId, 222);
+
+    assert.equal(result.left, true);
+    assert.deepEqual(result.affected, []);
+    const left = await sql`SELECT 1 FROM parties WHERE id = ${seed.singleId}`;
+    assert.equal(left.length, 0);
+    const members = await sql`SELECT 1 FROM members WHERE party_id = ${seed.singleId}`;
+    assert.equal(members.length, 0, 'the seat goes with the party');
+    assert.equal(await matchRuns(), 0, 'no swap broke, so nothing to re-run');
+  });
+
+  test('ends a pending swap for everyone, frees the others and looks again', async () => {
+    const seed = await seedFlight();
+    const id = await seedProposal(seed);
+
+    const result = await proposals.leaveFlight(seed.flightId, 222);
+
+    assert.equal(await status(id), 'rejected');
+    assert.deepEqual(await states(seed.flightId), ['seated'], 'the pair is back in the pool');
+    assert.deepEqual(result.affected, [{ telegram_user_id: 111, agreed: false }]);
+    assert.equal(await matchRuns(), 1);
+  });
+
+  test('ends an agreed swap too, which respond() cannot (CLAUDE.md §19.2)', async () => {
+    const seed = await seedFlight();
+    const id = await seedProposal(seed);
+    await proposals.respond(id, 111, 'accept');
+    const settled = await proposals.respond(id, 222, 'accept');
+    assert.equal(settled.settled, true);
+
+    // After agreeing, a button press can no longer undo it...
+    const pressed = await proposals.respond(id, 222, 'reject');
+    assert.equal(pressed.ok, false);
+
+    // ...but leaving the flight must: an agreement page naming someone who has
+    // gone would send strangers looking for them on board.
+    const result = await proposals.leaveFlight(seed.flightId, 222);
+
+    assert.equal(await status(id), 'rejected');
+    assert.deepEqual(await states(seed.flightId), ['seated']);
+    assert.deepEqual(result.affected, [{ telegram_user_id: 111, agreed: true }]);
+    const page = await proposals.loadProposalByToken('a'.repeat(32));
+    assert.notEqual(page?.status, 'accepted', 'the agreement page stops showing it');
+  });
+});
+
+describe('children on a party (migration 0005)', { skip }, () => {
+  test('stored at sign-up and changed with it', async () => {
+    const flights = await import('./flights.ts');
+    const seed = await seedFlight();
+    const weights = {
+      w_window: 0, w_aisle: 0, w_front: 0, w_avoid_middle: 0, w_avoid_lavatory: 0, w_adjacency: 200,
+    };
+
+    const partyId = await flights.upsertParty({
+      flightId: seed.flightId, telegramUserId: 333, displayName: 'Dan', size: 3, children: 2, weights,
+    });
+    assert.equal((await flights.partyFor(seed.flightId, 333))?.children, 2);
+
+    await flights.upsertParty({
+      flightId: seed.flightId, telegramUserId: 333, displayName: 'Dan', size: 2, children: 1, weights,
+    });
+    const party = await flights.partyFor(seed.flightId, 333);
+    assert.equal(party?.id, partyId);
+    assert.equal(party?.children, 1);
+  });
+
+  test('the database refuses a party made only of children', async () => {
+    const seed = await seedFlight();
+    await assert.rejects(
+      sql`UPDATE parties SET children = size WHERE id = ${seed.pairId}`,
+      /parties_children_range/,
+    );
   });
 });

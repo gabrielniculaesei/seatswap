@@ -34,6 +34,8 @@ export interface Move {
   display_name: string;
   from_seat: string;
   to_seat: string;
+  /** 0 declared, 1 read off a boarding pass (CLAUDE.md §10). */
+  verification_tier: number;
 }
 
 export interface RespondResult {
@@ -72,7 +74,8 @@ export async function loadProposalByToken(token: string): Promise<ProposalView |
 
 export async function movesFor(proposalId: number): Promise<Move[]> {
   return sql<Move[]>`
-    SELECT p.id AS party_id, p.display_name, pa.from_seat, pa.to_seat
+    SELECT p.id AS party_id, p.display_name, p.verification_tier,
+           pa.from_seat, pa.to_seat
       FROM proposal_assignments pa
       JOIN members m ON m.id = pa.member_id
       JOIN parties p ON p.id = m.party_id
@@ -210,18 +213,93 @@ export async function respond(
   }) as Promise<RespondResult>;
 }
 
+export interface LeaveResult {
+  /** False when there was nothing to leave: no such party on this flight. */
+  left: boolean;
+  /** Everyone whose swap fell through because of it, to be told so. */
+  affected: { telegram_user_id: number; agreed: boolean }[];
+}
+
 /**
- * A party pulling out of a swap they had already accepted (CLAUDE.md §19.2).
+ * Leave a flight: delete the party and everything hanging off it, now rather
+ * than at purge time (CLAUDE.md §13; GDPR Art. 17).
  *
- * The cycle cannot go ahead without them, so it ends for everyone and a fresh
- * match run looks for something else. Nobody is left worse off than they started:
- * without an agreement, everyone simply keeps the seat the airline gave them.
+ * Not a bare DELETE, because a party can be inside a live swap. Deleting it would
+ * cascade its proposal_parties rows away and leave the others holding a cycle
+ * with a hole in it. So every pending or agreed proposal it is in ends first, for
+ * everyone, exactly as §19.2 decided for withdrawing after acceptance: status
+ * `rejected`, the other parties back to `seated`, and a fresh match run to look
+ * for something else. Nobody ends up worse off than they started — without an
+ * agreement, everybody keeps the seat the airline gave them.
+ *
+ * This is also the only path that can end an *agreed* swap: respond() refuses
+ * anything no longer pending, which is right for a button in a chat but would
+ * leave a departed party's agreement page telling strangers to expect them.
  */
-export async function withdraw(
-  proposalId: number,
+export async function leaveFlight(
+  flightId: number,
   telegramUserId: number,
-): Promise<RespondResult> {
-  return respond(proposalId, telegramUserId, 'reject');
+): Promise<LeaveResult> {
+  return sql.begin(async (tx) => {
+    const parties = await tx<{ id: number }[]>`
+      SELECT id FROM parties
+       WHERE flight_id = ${flightId} AND telegram_user_id = ${telegramUserId}
+       FOR UPDATE
+    `;
+    const party = parties[0];
+    if (!party) return { left: false, affected: [] };
+
+    const live = await tx<{ id: number; status: string }[]>`
+      SELECT pr.id, pr.status
+        FROM proposals pr
+        JOIN proposal_parties pp ON pp.proposal_id = pr.id
+       WHERE pp.party_id = ${party.id}
+         AND pr.status IN ('pending', 'accepted')
+       ORDER BY pr.id
+         FOR UPDATE OF pr
+    `;
+
+    const affected = new Map<number, { telegram_user_id: number; agreed: boolean }>();
+    for (const proposal of live) {
+      await tx`UPDATE proposals SET status = 'rejected' WHERE id = ${proposal.id}`;
+
+      const others = await tx<{ id: number; telegram_user_id: number }[]>`
+        SELECT p.id, p.telegram_user_id
+          FROM proposal_parties pp
+          JOIN parties p ON p.id = pp.party_id
+         WHERE pp.proposal_id = ${proposal.id} AND p.id <> ${party.id}
+      `;
+      for (const other of others) {
+        const agreed = proposal.status === 'accepted' || (affected.get(other.id)?.agreed ?? false);
+        affected.set(other.id, { telegram_user_id: other.telegram_user_id, agreed });
+      }
+    }
+
+    if (affected.size > 0) {
+      // Back into the pool, unless something else still holds them. `settled` as
+      // well as `matched`: an agreed swap that has just ended leaves nobody settled.
+      await tx`
+        UPDATE parties SET state = 'seated'
+         WHERE id IN ${tx([...affected.keys()])}
+           AND state IN ('matched', 'settled')
+           AND NOT EXISTS (
+                 SELECT 1
+                   FROM proposal_parties pp
+                   JOIN proposals pr ON pr.id = pp.proposal_id
+                  WHERE pp.party_id = parties.id
+                    AND pr.status IN ('pending', 'accepted')
+               )
+      `;
+      await queueMatchRun(tx, flightId);
+    }
+
+    // Cascades to members, proposal_parties and proposal_assignments. The ended
+    // proposals themselves stay, rejected and without this party in them, until
+    // purge_flight; they hold no personal data of the party that left.
+    await tx`DELETE FROM parties WHERE id = ${party.id}`;
+
+    return { left: true, affected: [...affected.values()] };
+  }) as Promise<LeaveResult>;
 }
 
 async function releaseParties(

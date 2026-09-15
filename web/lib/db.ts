@@ -4,6 +4,15 @@
  * postgres.js, hand-written SQL, no ORM (CLAUDE.md §12, §17). One pooled client
  * per process, cached on globalThis so Next.js hot reloading in development does
  * not open a new pool on every edit and exhaust the server's connection limit.
+ *
+ * The client is built on first use, not on import. This module used to throw from
+ * its top level when DATABASE_URL was unset, which meant that importing anything
+ * that imported it — however pure the function you actually wanted — required a
+ * database. Twice that was worked around by splitting the pure logic into its own
+ * file (flight-id.ts, seat-input.ts); CLAUDE.md §0.1 says the third time to fix
+ * the cause instead, and verification.ts was the third time. Nothing connects
+ * until a query is issued, so a unit test can import the module and never touch a
+ * socket, while a missing DATABASE_URL still fails loudly the moment a query runs.
  */
 
 import postgres from 'postgres';
@@ -58,10 +67,40 @@ function create() {
   });
 }
 
-export const sql = globalThis.__seatswapSql ?? create();
+let cached: ReturnType<typeof postgres> | undefined;
 
-if (process.env.NODE_ENV !== 'production') {
-  globalThis.__seatswapSql = sql;
+function client(): ReturnType<typeof postgres> {
+  if (!cached) {
+    cached = globalThis.__seatswapSql ?? create();
+    // Only development needs the global: it is what stops hot reload opening a
+    // new pool on every edit. In production this module instance is the cache.
+    if (process.env.NODE_ENV !== 'production') globalThis.__seatswapSql = cached;
+  }
+  return cached;
 }
+
+/**
+ * Stands in for the postgres.js client until something is actually asked of it.
+ *
+ * `sql` is both callable (the tagged template) and an object (sql.begin, sql.json),
+ * so the proxy needs both traps. Methods are bound to the real client because
+ * postgres.js relies on its own `this`.
+ */
+export const sql: ReturnType<typeof postgres> = new Proxy(
+  (() => {}) as unknown as ReturnType<typeof postgres>,
+  {
+    apply(_target, _thisArg, args: unknown[]) {
+      return (client() as (...a: unknown[]) => unknown)(...args);
+    },
+    get(_target, property) {
+      const real = client() as unknown as Record<string | symbol, unknown>;
+      const value = real[property];
+      return typeof value === 'function' ? value.bind(real) : value;
+    },
+    has(_target, property) {
+      return property in (client() as unknown as object);
+    },
+  },
+);
 
 export default sql;

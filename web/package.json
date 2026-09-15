@@ -12,11 +12,10 @@
     "migrate": "node scripts/migrate.mjs",
     "utility-check": "node scripts/utility-check.ts",
     "test": "node --test \"lib/**/*.test.ts\"",
-    "test:db": "node --test \"lib/**/*.itest.ts\""
+    "test:db": "node --test --test-concurrency=1 \"lib/**/*.itest.ts\""
   },
   "dependencies": {
     "next": "^15.1.0",
-    "next-intl": "^3.26.0",
     "postgres": "^3.4.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

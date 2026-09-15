@@ -30,6 +30,9 @@ export interface CandidateParty {
   flight_number: string;
   departure_date: string;
   seat_map_key: string | null;
+  /** NULL until AeroDataBox has answered; only cross-checked once it has. */
+  origin: string | null;
+  destination: string | null;
   size: number;
   state: string;
 }
@@ -46,7 +49,8 @@ export async function candidateParties(
 ): Promise<CandidateParty[]> {
   return sql<CandidateParty[]>`
     SELECT p.id AS party_id, p.flight_id, p.size, p.state,
-           f.carrier, f.flight_number, f.departure_date, f.seat_map_key
+           f.carrier, f.flight_number, f.departure_date, f.seat_map_key,
+           f.origin, f.destination
       FROM parties p
       JOIN flights f ON f.id = p.flight_id
      WHERE p.telegram_user_id = ${telegramUserId}
@@ -56,7 +60,7 @@ export async function candidateParties(
   `;
 }
 
-function designatorOf(party: CandidateParty): string {
+export function designatorOf(party: CandidateParty): string {
   return `${party.carrier}${party.flight_number}`;
 }
 
@@ -141,18 +145,14 @@ export async function submitSeats(
   }
 
   try {
-    await storeSeats(party, parsed.seats);
+    // Tier 0: typed out, taken on trust. That is the default and it is fine
+    // (CLAUDE.md §10) — no tier is required to take part.
+    await storeSeats(party, parsed.seats, { verificationTier: 0 });
   } catch (error) {
     // The unique index on (flight_id, current_seat) is our anti-Sybil defence and
     // also a genuine "somebody mistyped" signal (CLAUDE.md §10).
-    if (String(error).includes('members_unique_seat_per_flight')) {
-      return {
-        ok: false,
-        message:
-          'Somebody on this flight has already claimed one of those seats. '
-          + 'If that seat really is yours, check the number and try again.',
-      };
-    }
+    const conflict = conflictMessage(error);
+    if (conflict) return { ok: false, message: conflict };
     throw error;
   }
 
@@ -167,13 +167,35 @@ export async function submitSeats(
   };
 }
 
+export interface StoreSeatsOptions {
+  /**
+   * Check-in sequence numbers read off boarding passes, positionally aligned with
+   * `seats`. Unique per flight, so they are a scarce fact a forgery has to guess
+   * (CLAUDE.md §10).
+   */
+  sequences?: (number | null)[];
+  /** 0 when the seats were typed out, 1 when they came off a boarding pass. */
+  verificationTier?: number;
+}
+
 /**
  * Write the seats and queue a match run, in one transaction.
  *
  * The match run is queued inside the transaction on purpose: if the seats do not
  * commit, neither does the job that would solve using them.
+ *
+ * Shared with the boarding-pass path in verification.ts, which is why the tier is
+ * a parameter: it is always written, never merely raised. Someone who scans a pass
+ * and then types a different seat has a seat we have not verified, and the badge
+ * has to say so or it is not worth having.
  */
-async function storeSeats(party: CandidateParty, seats: string[]): Promise<void> {
+export async function storeSeats(
+  party: CandidateParty,
+  seats: string[],
+  options: StoreSeatsOptions = {},
+): Promise<void> {
+  const { sequences = [], verificationTier = 0 } = options;
+
   await sql.begin(async (tx) => {
     const members = await tx<{ id: number }[]>`
       SELECT id FROM members WHERE party_id = ${party.party_id} ORDER BY id
@@ -190,13 +212,22 @@ async function storeSeats(party: CandidateParty, seats: string[]): Promise<void>
       members.push(created[0]);
     }
 
+    // Clear the whole party before filling it back in. The per-flight unique
+    // indexes are checked per statement, so assigning in place would fail when
+    // two people in the same party simply swap seats with each other — which is
+    // a thing that happens, and used to be an error message about somebody else
+    // having claimed the seat. This also drops the rows of a party that shrank.
+    await tx`
+      UPDATE members SET current_seat = NULL, checkin_sequence = NULL
+       WHERE party_id = ${party.party_id}
+    `;
+
     for (let i = 0; i < seats.length; i += 1) {
-      await tx`UPDATE members SET current_seat = ${seats[i]} WHERE id = ${members[i].id}`;
-    }
-    // Anyone left over (the party shrank) loses their seat rather than keeping a
-    // stale one that would be matched against.
-    for (let i = seats.length; i < members.length; i += 1) {
-      await tx`UPDATE members SET current_seat = NULL WHERE id = ${members[i].id}`;
+      await tx`
+        UPDATE members
+           SET current_seat = ${seats[i]}, checkin_sequence = ${sequences[i] ?? null}
+         WHERE id = ${members[i].id}
+      `;
     }
 
     await tx`
@@ -206,9 +237,37 @@ async function storeSeats(party: CandidateParty, seats: string[]): Promise<void>
     `;
 
     await tx`
+      UPDATE parties SET verification_tier = ${verificationTier}
+       WHERE id = ${party.party_id}
+    `;
+
+    await tx`
       INSERT INTO jobs (type, payload, run_after)
       VALUES ('match_run', ${tx.json({ flight_id: party.flight_id, trigger: 'immediate' })}, now())
       ON CONFLICT DO NOTHING
     `;
   });
+}
+
+/**
+ * Turn a unique-index violation into something worth reading.
+ *
+ * Both indexes exist to make seats and sequence numbers scarce, so hitting one is
+ * either a typo or somebody trying it on; the message is written for the typo,
+ * which is what it nearly always is.
+ */
+export function conflictMessage(error: unknown): string | null {
+  const text = String(error);
+  if (text.includes('members_unique_seat_per_flight')) {
+    return 'Somebody on this flight has already claimed one of those seats. '
+      + 'If that seat really is yours, check the number and try again.';
+  }
+  if (text.includes('members_unique_sequence_per_flight')) {
+    // Duplicates inside one submission are caught before we get here, so this is
+    // always a clash with somebody else's pass on the same flight.
+    return 'Somebody on this flight already has that check-in number. A check-in '
+      + 'number is issued once per flight, so one of the two passes is not what it '
+      + 'looks like. You can send your seat numbers instead.';
+  }
+  return null;
 }

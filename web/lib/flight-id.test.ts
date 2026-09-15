@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 
 import {
+  departureDateBounds,
   formatFlightSlug,
   normaliseFlightInput,
   parseDepartureDate,
@@ -96,5 +97,25 @@ describe('parseDepartureDate', () => {
     for (const bad of ['', '2026-10-1', '12-10-2026', '2026/10/12', 'tomorrow', '2026-10-12T00:00:00Z']) {
       assert.equal(parseDepartureDate(bad, TODAY), null, `should reject ${bad}`);
     }
+  });
+});
+
+describe('departureDateBounds', () => {
+  test('is the range parseDepartureDate accepts, to the day', () => {
+    // The home page's date picker is limited to exactly this, so a date the
+    // picker offers is never one the server then refuses.
+    const { min, max } = departureDateBounds(TODAY);
+    assert.equal(min, '2026-09-13');
+    assert.equal(max, '2027-09-14');
+
+    assert.equal(parseDepartureDate(min, TODAY), min);
+    assert.equal(parseDepartureDate(max, TODAY), max);
+    assert.equal(parseDepartureDate('2026-09-12', TODAY), null, 'the day before min');
+    assert.equal(parseDepartureDate('2027-09-15', TODAY), null, 'the day after max');
+  });
+
+  test('works in UTC whatever the time of day', () => {
+    const lateEvening = new Date('2026-09-14T23:59:59Z');
+    assert.deepEqual(departureDateBounds(lateEvening), departureDateBounds(TODAY));
   });
 });

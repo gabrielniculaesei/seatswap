@@ -41,18 +41,33 @@ export function parseDepartureDate(value: string, today: Date = new Date()): str
   // Rejects real-looking nonsense like 2026-02-31, which Date rolls over.
   if (parsed.toISOString().slice(0, 10) !== trimmed) return null;
 
+  // ISO dates compare correctly as strings.
+  const { min, max } = departureDateBounds(today);
+  if (trimmed < min || trimmed > max) return null;
+
+  return trimmed;
+}
+
+/**
+ * The first and last departure dates parseDepartureDate accepts, as `YYYY-MM-DD`.
+ *
+ * Exported so the search form's date picker offers exactly this range: a picker
+ * that allowed a date the server then refused would be a form that lies.
+ */
+export function departureDateBounds(today: Date = new Date()): { min: string; max: string } {
   const startOfToday = Date.UTC(
     today.getUTCFullYear(),
     today.getUTCMonth(),
     today.getUTCDate(),
   );
   const dayMs = 24 * 60 * 60 * 1000;
-  // One day of slack behind: a flight departing "yesterday" in UTC may still be
-  // in the air, or boarding somewhere west of here.
-  if (parsed.getTime() < startOfToday - dayMs) return null;
-  if (parsed.getTime() > startOfToday + 365 * dayMs) return null;
-
-  return trimmed;
+  const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+  return {
+    // One day of slack behind: a flight departing "yesterday" in UTC may still be
+    // in the air, or boarding somewhere west of here.
+    min: iso(startOfToday - dayMs),
+    max: iso(startOfToday + 365 * dayMs),
+  };
 }
 
 /**
