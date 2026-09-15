@@ -58,17 +58,17 @@ decline.
 | **M2** Next.js flight page, Telegram auth, sign-up | ✅ | `web/app/` |
 | **M3** Worker, job queue, AeroDataBox | ✅ | `solver/worker.py`, `handlers.py` |
 | **M4** Telegram bot, proposals, agreement screen | ✅ | `web/app/api/telegram/`, `a/[token]` |
-| M5 BCBP parsing, verification badge, GDPR purge | ⬜ | |
-| M6 i18n, SEO, docs | ⬜ | |
+| **M5** BCBP parsing, verification badge, GDPR purge | ✅ | `web/lib/bcbp.ts`, `verification.ts` |
+| **M6** SEO, docs | ✅ | `web/lib/seo.ts`, `app/robots.ts`, `app/sitemap.ts` |
 
 The solver was built before any UI on purpose. It is the part that either works or
 does not, and it can be proven out on synthetic flights without a single user.
 M3 came before M2 for the same reason: it is what turns the solver from a library
 into a service, and none of it depends on what the pages look like.
 
-300 tests — 231 Python and 69 TypeScript, of which 75 need a real Postgres. Without
-a database those skip and everything else still runs, so a machine without Postgres
-can still check everything that does not need one.
+405 tests — 231 Python and 174 TypeScript, of which 113 need a real Postgres.
+Without a database those skip and everything else still runs, so a machine without
+Postgres can still check everything that does not need one.
 
 ---
 
@@ -333,6 +333,45 @@ with the right granularity, so flight pages are server-rendered.
 The single weakness of the web — push notifications on iOS — is covered by the
 Telegram bot.
 
+### Indexing a URL space of tens of millions
+
+Making flight pages indexable means inviting crawlers into every carrier times
+every flight number times a year of dates. Two consequences fell out of that, and
+both changed the code rather than just the metadata.
+
+**The flight page does not write.** It used to create the `flights` row it was
+about, which also queued the one AeroDataBox call that flight will ever get. That
+was harmless while nothing linked here and became a liability the moment the pages
+were meant to be crawled: a bot walking the URL space would have spent the whole
+600-call monthly quota in an afternoon and filled the table with flights nobody
+asked about. The row is now created on sign-up, behind a Telegram login, so a real
+person asked for it. "One API call per flight" came out stronger — a flight nobody
+joined costs nothing at all.
+
+That rule has no observable symptom when it breaks: every page still renders and
+every other test still passes, and the only evidence is a quota that is gone by
+mid-month. So there is a test that reads the page's source and fails if a write
+creeps back in.
+
+**A login raises the price of that attack without bounding it**, though — a
+Telegram account takes half a minute to make, and an authenticated script can walk
+the same URL space by hand. So creating a flight is metered per account: five new
+flights a day by default, refused with a 429 after that. Joining a flight that
+already exists is free and unmetered, because it costs nothing and ten people
+converging on one flight is the product working rather than abuse. Whoever loses
+the race to create a flight is not charged for it — somebody else already paid.
+
+**Empty pages are not indexed.** A flight nobody has joined is `noindex, follow`
+and stays out of the sitemap; one signed-up party flips both. Offering Google
+millions of near-identical empty pages is how a site gets classified as thin
+content and loses the rankings it does deserve. `follow` stays on, so a shared
+link to an empty flight still passes the crawler through.
+
+Structured data follows the same rule of only claiming what we hold: it is emitted
+only for flights AeroDataBox has confirmed, every unknown field is omitted rather
+than guessed, and a departure timestamp that disagrees with the date in the URL is
+dropped rather than contradicting the page it sits on.
+
 ---
 
 ## Privacy
@@ -361,12 +400,30 @@ the seat and the passenger name. We can read one. We **cannot prove it is real**
 the standard's security section is optional, almost no airline uses it, and the
 keys are not public.
 
-So verification is a **badge, never a gate** — no tier is required to take part.
-What actually raises the cost of a fake is the cross-checks: the flight has to
-exist that day on that route, the seat has to exist on that aircraft type, and
-**a seat belongs to exactly one person per flight** (a database constraint). That
-last one is the good one, and it is free: seats are scarce, so a Sybil attack has
-to burn real seats.
+So verification is a **badge, never a gate** — no tier is required to take part,
+and the solver gives the tier only a 5% thumb on the scale. The badge says
+"boarding pass checked", not "verified traveller", because the second would be a
+claim about a stranger that we cannot back.
+
+What actually raises the cost of a fake is the cross-checks, all of which run on
+the server:
+
+1. the flight has to be one you are signed up for, on the right date;
+2. the route has to match what the flight API told us, when it told us anything;
+3. the seat has to exist on that aircraft type;
+4. **a seat belongs to exactly one person per flight**;
+5. **a check-in sequence number belongs to exactly one person per flight**.
+
+The last two are the good ones, and they are free: both are unique indexes rather
+than code, and both are scarce per flight, so a Sybil attack has to burn real ones
+and cannot know which are already taken.
+
+The decoding is the browser's own `BarcodeDetector`, which reads PDF417 and Aztec
+with no library — so no barcode dependency ships to visitors. Safari and Firefox
+do not have it, and there the same screen accepts the barcode text pasted in. Both
+paths parse in the page and post six fields per leg; the raw payload never leaves
+the tab, which is also why the Telegram bot politely refuses a photo of a pass and
+links to the flight page instead.
 
 ---
 
@@ -381,8 +438,10 @@ npm run migrate --prefix web
 
 # web
 npm run dev --prefix web             # :3000
-npm test --prefix web                # auth, sessions, seat and URL parsing
-TEST_DATABASE_URL=postgres://… npm run test:db --prefix web   # proposals, seat submission
+npm test --prefix web                # auth, sessions, seat/URL/boarding-pass parsing
+TEST_DATABASE_URL=postgres://… npm run test:db --prefix web   # proposals, seats,
+                                                              # verification, sitemap,
+                                                              # quota, concurrency
 
 # solver and worker, outside docker
 cd solver
@@ -400,9 +459,12 @@ TEST_DATABASE_URL=postgres://seatswap:seatswap@localhost:5432/seatswap_test \
   .venv/bin/python -m pytest
 ```
 
-Without it they skip. AeroDataBox is in fixture mode by default
-(`AERODATABOX_MODE=fixture`), so neither the tests nor local development ever
-open a socket to it — set `live` only in production.
+Without it they skip. The tests put AeroDataBox in fixture mode
+(`AERODATABOX_MODE=fixture`), so they never open a socket to it. Left unset, the
+worker defaults to `off`: no calls at all, every flight unverified, and each
+flight's check-in, match runs and purge estimated from its date. That is how to
+run it with no API key. Set `live` once you have one — RapidAPI's free Basic
+plan (400 units a month, 2 per flight) covers about 200 new flights a month.
 
 To point Telegram at the webhook, once per deployment:
 
