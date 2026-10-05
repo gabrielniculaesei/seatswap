@@ -47,7 +47,7 @@ the chain-finding actually adds.
 | | what it is |
 |---|---|
 | **chains, capped** | what the product does: at most 4 parties per proposal, solved in rounds, several independent proposals per flight |
-| **one uncapped solve** | maximise total welfare in a single solve, exactly as CLAUDE.md §14 originally specified |
+| **one uncapped solve** | maximise total welfare in a single solve, as the model was first designed |
 | **two-party swaps only** | the baseline: what you could arrange yourself by asking one person |
 
 ## The catch that makes the headline number misleading
@@ -165,7 +165,7 @@ in 60 milliseconds. The default is 8 and should stay there.
   thin the market more than the independent sampling used here.
 - Who actually signs up. Participation is treated as uniform across the cabin; in
   reality split groups have far more reason to register than contented solo
-  travellers, which is the asymmetry the positioning in `CLAUDE.md` §1 exists to
+  travellers, which is the asymmetry the product's positioning exists to
   fight.
 - Anything about acquisition. This says what happens once *n* people are on a
   flight, not how they got there.

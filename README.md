@@ -1,496 +1,373 @@
-# seatswap
+<p align="center">
+  <img src="docs/logo.svg" width="72" height="72" alt="seatswap logo">
+</p>
 
-> Working name. The project is greenfield; see `CLAUDE.md` for the full design
-> rationale and the decisions that are already settled.
+<h1 align="center">seatswap</h1>
 
-Passengers on the **same flight** declare, ahead of time, the seat they have and
-the seat they want. A solver finds swaps — and **chains of swaps** — in which
-every participant ends up better off. No money changes hands, and nobody
-negotiates with anybody.
-
-The output is an agreement screen you show each other at the gate. The trade was
-closed before boarding.
+<p align="center">
+  Get a better seat on your flight by swapping with other passengers. Free, and nobody has to ask for a favour.
+</p>
 
 ---
 
-## Why this is a real problem and not a toy
+Passengers on the same flight say, ahead of time, which seat they have and which
+seat they would rather have. A solver looks across the whole flight for swaps,
+including chains of three or four people, in which everyone involved ends up
+better off. There is no money involved and no negotiation. When everyone in a
+swap has accepted, each of them gets a short agreement page to show the others on
+board.
 
-Airlines split groups apart on purpose: seat selection is ancillary revenue, so
-the default allocation scatters a family and sells them the fix. Everyone has
-watched the result — a stranger in the aisle being asked to give up the seat they
-paid for, by someone who has no way to compensate them.
+## Contents
 
-The interesting part is that **the two sides of this market want different
-things**, and that is what makes a free trade possible:
+- [How it works](#how-it-works)
+- [Why the trade is free](#why-the-trade-is-free)
+- [The solver](#the-solver)
+- [What the simulator shows](#what-the-simulator-shows)
+- [Architecture](#architecture)
+- [Privacy](#privacy)
+- [Boarding pass verification](#boarding-pass-verification)
+- [Tech stack](#tech-stack)
+- [Running it locally](#running-it-locally)
+- [Status](#status)
+- [License](#license)
+
+## How it works
+
+1. **Weeks before the flight.** You open the flight's page, for example
+   `/f/W6-3234/2026-10-12`, sign in with Telegram and answer three questions: how
+   many of you are travelling, how much sitting together matters, and which kind
+   of seat you prefer. No seat number is needed yet, because the airline has not
+   assigned one.
+2. **When check-in opens.** The Telegram bot asks for your seat. You reply with
+   `14A`, or `14A, 22F` for a group, or scan your boarding pass on the flight page.
+3. **Before departure.** The solver runs at set times before the flight. If it
+   finds a swap, everyone involved gets a Telegram message with Accept and
+   Decline buttons.
+4. **On board.** Once everyone in a swap has accepted, each person gets a link to
+   an agreement page that lists who moves where. You show it to each other and
+   change seats.
+
+Nothing changes on the airline's side. Airlines offer no way to move a seat from
+one passenger to another, and releasing a seat on their website would put it back
+on sale to anyone. The swap is an agreement between people, carried out in the
+cabin.
+
+## Why the trade is free
+
+Airlines split groups up on purpose, because seat selection is a source of
+revenue. The usual result is a stranger in the aisle being asked to give up a seat
+they chose, by someone with nothing to offer in return.
+
+The two sides of that situation want different things:
 
 | | cares about | does not care about |
 |---|---|---|
-| a split group | sitting together | which seat, exactly |
-| a solo traveller | window / aisle / not-the-middle | who sits where else |
+| a split group | sitting together | which seats exactly |
+| a solo traveller | window, aisle, not the middle | who sits around them |
 
-A group's utility is nearly **orthogonal** to a single traveller's. So the group
-can pay the single traveller in a currency — seat quality — that costs the group
-essentially nothing. The trade creates value; it does not move a disappointment
-from one person to another.
+Since a group's preferences barely overlap with a solo traveller's, the group can
+pay in a currency that costs it nothing: seat quality. The trade creates value
+instead of moving a bad seat from one person to another.
 
-That is also why the product is positioned as *"upgrade your seat for free"* and
-not as *"help reunite families"*. A favour-based framing gives the people who own
-the good seats no reason to show up.
+That is also why the product is pitched as "get a better seat for free" and not
+"help families sit together". A request for favours gives the people holding the
+good seats no reason to sign up. An upgrade does.
 
-### Nobody ever asks anybody for a favour
+Every preference is declared in advance, and the solver never proposes a swap that
+leaves anyone worse off. Nobody is asked for a favour. People are only offered an
+improvement, which they can accept or decline.
 
-Every preference is declared in advance, and the solver is constrained so that
-**no party can end up worse off than it is now** (individual rationality), and so
-that **any party that moves gains a real amount** — not a token — for doing so.
+## The solver
 
-The consequence is that there is no social pressure anywhere in the product,
-because there is no favour to grant. There is only an improvement to accept or
-decline.
+The solver can only hand out the seats the participants already hold. Empty seats
+are never offered, since they belong to the airline and can be sold at any moment.
+A solution is therefore a reshuffle (a permutation) of the seats in the pool.
 
----
+The model uses Google OR-Tools CP-SAT and maximises the total gain in utility,
+subject to these rules:
 
-## Status
+1. every passenger gets exactly one seat, and no seat goes to two people;
+2. a group counts as seated together only if its seats are next to each other
+   **on the same side of the aisle**: 14C and 14D are neighbours on a seat map,
+   not in a cabin;
+3. **individual rationality**: no party ends up worse off than it is now;
+4. **minimum gain**: a party that moves must gain a meaningful amount, so nobody is
+   shuffled around just to make room for someone else;
+5. **no children in exit rows**: a party with children never gets more exit-row
+   seats than it has adults, unless the airline already seated it there.
 
-| Milestone | | |
-|---|---|---|
-| **M0** Schema, migrations, seat geometry | ✅ | `db/`, `web/lib/seatmap.ts`, `solver/seatmap.py` |
-| **M1** Solver, cycle decomposition, simulator | ✅ | `solver/` |
-| **M2** Next.js flight page, Telegram auth, sign-up | ✅ | `web/app/` |
-| **M3** Worker, job queue, AeroDataBox | ✅ | `solver/worker.py`, `handlers.py` |
-| **M4** Telegram bot, proposals, agreement screen | ✅ | `web/app/api/telegram/`, `a/[token]` |
-| **M5** BCBP parsing, verification badge, GDPR purge | ✅ | `web/lib/bcbp.ts`, `verification.ts` |
-| **M6** SEO, docs | ✅ | `web/lib/seo.ts`, `app/robots.ts`, `app/sitemap.ts` |
+Each party's utility is a weighted sum of seat features (window, aisle, not the
+middle, near the front, away from the toilets) plus a large bonus for sitting
+together. The weights come from the sign-up questions. The browser only sends the
+answers, and the server decides what they are worth, so nobody can give themselves
+an inflated weight. Everything is computed in integers, as CP-SAT requires.
 
-The solver was built before any UI on purpose. It is the part that either works or
-does not, and it can be proven out on synthetic flights without a single user.
-M3 came before M2 for the same reason: it is what turns the solver from a library
-into a service, and none of it depends on what the pages look like.
+### Chains
 
-405 tests — 231 Python and 174 TypeScript, of which 113 need a real Postgres.
-Without a database those skip and everything else still runs, so a machine without
-Postgres can still check everything that does not need one.
-
----
-
-## The algorithm
-
-The pool of reassignable seats is **exactly the seats the participants already
-occupy** — never an empty seat on the map, because we do not control those and the
-airline can sell one at any moment. So a solution is a **permutation** of that
-pool, which is what makes the whole thing tractable and safe.
-
-A CP-SAT model (OR-Tools) maximises total utility gain subject to:
-
-1. every member gets exactly one seat, and every seat goes to at most one member;
-2. a party counts as "together" only if its members hold contiguous seats **on the
-   same side of the aisle** — 14C and 14D are neighbours on a seat map and not on
-   an aeroplane;
-3. **individual rationality**: `U_p(new) ≥ U_p(current)` for every party;
-4. **minimum gain**: a party that moves must gain at least `MIN_GAIN`, so nobody is
-   shuffled for nothing in order to unblock somebody else.
-
-Constraint 4 is doing more work than it looks. Here is the solver refusing a
-higher-scoring solution because it would have moved someone for zero benefit:
-
-```
-Anna + Ben  14A, 20C   split, only want to sit together    (w_adjacency = 200)
-Clara       14B        middle seat, wants a window          (w_window = 60, w_avoid_middle = 40)
-Dan         20B        middle seat, wants an aisle          (w_aisle  = 60, w_avoid_middle = 40)
-
-  →  Anna + Ben  20C → 14B   together in 14A + 14B   +200
-     Clara       14B → 20C   aisle instead of middle  +40
-     Dan         stays put                              0
-```
-
-Total utility would have been higher if Dan had moved to 14B and Clara had taken
-the window at 14A — but Dan would have gained nothing from the move. That is a
-favour wearing a disguise, and the model will not ask for it.
-
-### Chains are the reason this is not a swap board
-
-A noticeboard where people post "swapping 20A for an aisle" only ever finds trades
-between two people. Plenty of value is invisible to it:
+A noticeboard where people post "swapping 20A for an aisle" can only find trades
+between two people, and a lot of value is invisible to it:
 
 ```
 P1  20A   window, wants an aisle
-P2  20C   aisle,  wants to be near the front
-P3   2B   middle at the front, wants a window
+P2  20C   aisle, wants to be near the front
+P3   2B   middle seat at the front, wants a window
 ```
 
-Every **two-party** trade here is refused, because in each one the other person
-gains nothing: P1↔P2 leaves P2 in another row-20 seat, P1↔P3 leaves P1 in a
-middle, P2↔P3 leaves P3 on an aisle. Nobody would agree to any of them.
-
-Rotate all three at once and everyone is better off:
+Every two-person trade here fails, because one side gains nothing from it. Rotate
+all three and everyone gains:
 
 ```
-P1  20A → 20C    aisle          +60
-P2  20C →  2B    front row       +56
-P3   2B → 20A    window          +60
+P1  20A -> 20C   aisle       +60
+P2  20C ->  2B   front row   +56
+P3   2B -> 20A   window      +60
 ```
 
-That trade cannot be discovered by talking to your neighbour, and it cannot be
-executed by two people agreeing. It needs someone holding the whole flight at
-once. (This example is a test, not a hypothetical:
-`solver/tests/test_simulator.py::test_baseline_cannot_close_a_three_party_chain`.)
+No two of these people could have arranged this between themselves. It takes
+something that can see the whole flight at once. This example is a test case in
+`solver/tests/test_simulator.py`.
 
-### Cycles, and why they are kept short
+### Keeping proposals small
 
-The optimum is a permutation, and every permutation decomposes into disjoint
-cycles. Each cycle is **closed** — the seats it releases are exactly the seats it
-takes — so each one can be accepted or declined on its own without affecting the
-others. That is what `solver/cycles.py` produces: one proposal per cycle.
+Every permutation splits into separate cycles, and each cycle frees exactly the
+seats it takes. So each cycle becomes its own proposal, which can be accepted or
+declined without affecting the others (`solver/cycles.py`).
 
-The simulator then turned up something the design had not anticipated. Maximising
-total utility on a busy flight does not produce several independent cycles — it
-produces **one enormous one**, averaging 18 parties. A proposal is atomic, so that
-is eighteen people who all have to press Accept. At 90 % acceptance each, it closes
-15 % of the time. A three-party cycle closes 73 % of the time.
+The simulator showed a problem with the straightforward model. On a busy flight,
+maximising total utility does not produce several small cycles. It produces one
+very large one, averaging 18 parties. A proposal only goes ahead if everyone in it
+accepts, and if each person accepts nine times out of ten, an 18-party proposal
+goes ahead 15% of the time. A three-party proposal goes ahead 73% of the time.
 
-So the solver caps how many parties may move in a single solve, and a match run
-**solves in rounds**, re-running over the parties left untouched
-(`solver/match_run.py`). Measured at 25 % participation:
+So a single solve may move at most four parties, and a match run solves in rounds
+over the parties still unmatched (`solver/match_run.py`). At 25% participation:
 
-| parties per proposal | mean cycle | proposals per flight | groups reunited | × P(all accept) |
+| parties per proposal | mean cycle length | proposals per flight | groups reunited | reunited and accepted |
 |---|---|---|---|---|
-| uncapped | 18.1 | 1.0 | 33 % | 5 % |
-| 6 | 4.8 | 2.7 | 26 % | 16 % |
-| **4** (default) | **3.6** | **3.4** | **20 %** | **14 %** |
-| 3 | 2.8 | 4.2 | 19 % | 14 % |
-| 2 | 2.0 | 4.7 | 8 % | 7 % |
+| no limit | 18.1 | 1.0 | 33% | 5% |
+| 6 | 4.8 | 2.7 | 26% | 16% |
+| **4 (default)** | **3.6** | **3.4** | **20%** | **14%** |
+| 3 | 2.8 | 4.2 | 19% | 14% |
+| 2 | 2.0 | 4.7 | 8% | 7% |
 
-It gives up total utility on paper and gets roughly three times as much of it in
-practice. The cap of 2 — pure two-party swaps — collapses back to the baseline,
-which is the measurement that says the chains are the product.
+The limit gives up some utility on paper and delivers about three times as much in
+practice. With a limit of two, which allows only plain swaps between two people,
+the results fall back to the baseline. That is the measurement that shows the
+chains are where the value is.
 
-### When the solver runs
+### When it runs
 
-Not on every sign-up. Firing the first decent two-way swap burns a seat that ten
-minutes later could have completed a much better three-way chain — the same reason
-kidney-exchange programmes batch their matching instead of running it continuously.
+Not on every sign-up. Proposing the first acceptable two-person swap can use up a
+seat that would have completed a much better three-person chain ten minutes later.
+Kidney exchange programmes batch their matching for the same reason.
 
-- an **immediate** run happens on every seat submission, but only emits if every
-  party involved has reached its theoretical best;
-- **scheduled** runs at T-20h, T-12h and T-4h emit the best available.
+- After every seat submission an **immediate** run is tried, but its result is
+  only sent if every party in it gets the best outcome it could possibly have.
+- **Scheduled** runs at 20, 12 and 4 hours before departure send the best result
+  available.
+- A pending proposal is replaced only if every party in it does strictly better,
+  and a proposal that anyone has already accepted is never replaced.
 
----
+## What the simulator shows
 
-## What the simulator says
+`solver/simulator.py` generates synthetic flights with a realistic mix of solo
+travellers, couples and larger groups, varies the share of the cabin that takes
+part, and runs the real solver on each one. It compares the results with a strong
+baseline: greedy two-person swaps under the same fairness rules, which is roughly
+what passengers could arrange by asking their neighbours.
 
-`solver/simulator.py` generates synthetic flights with a realistic mix of party
-sizes and preferences, sweeps the share of the cabin that participates, and runs
-the real solver. It is the honest, quantitative way to talk about cold start: it
-gives the participation threshold below which this product simply does not work.
+![Groups reunited against participation](docs/liquidity.png)
 
-It also runs a deliberately strong **baseline** — greedy, mutually-improving
-swaps between two people only, obeying the same rules — which is the closest
-thing to "what you could arrange yourself by asking a neighbour". The gap between
-the two lines is the value the algorithm actually adds.
+Across 800 synthetic flights:
 
-```bash
-cd solver
-python simulator.py --flights 200 --participation 0.02:0.40:0.02 \
-    --out ../docs/liquidity.png --json ../docs/liquidity.json
-```
+- **Below about 8% of the cabin, it does not work.** At 4% participation only 3%
+  of the groups that wanted to sit together manage it. At 10%, about twenty
+  passengers on a Boeing 737-800, that rises to 13%. The threshold is per flight:
+  a thousand users spread across Europe are worth less than twenty on the same
+  plane.
+- **Without the limit, the solver gets worse as the product gets more popular.**
+  At 40% participation it reunites 57% of groups on paper, but its cycles grow to
+  28 parties and almost none would be accepted by everyone. What it actually
+  delivers peaks around 10% participation and then falls to 3%, while the limited
+  solver climbs to 22%.
+- **Chains beat two-person swaps at every level.** At 10% participation the
+  two-person baseline reunites 4.8% of groups against 13.3% for the solver, even
+  though two-person proposals have the best possible odds of being accepted.
 
-![success rate vs participation density](docs/liquidity.png)
-
-Three findings, from 800 synthetic flights:
-
-**Below roughly 8 % of a cabin this does not work.** At 4 % participation — eight
-passengers on a 737-800 — 3 % of the groups that wanted to sit together get to.
-There is nobody to trade with. The threshold to aim at is **10 % of one cabin,
-about twenty passengers**, where it jumps to 13 %. It is a *per-flight* threshold:
-a thousand users scattered across Europe are worth nothing, twenty on one flight
-are worth everything.
-
-**Maximising total welfare makes the product worse the more popular it gets.**
-This is the result that changed the design. An uncapped solve reunites far more
-groups on paper — 57 % against 33 % at 40 % participation — but its mean cycle
-grows to 28 parties, and the chance that all 28 accept collapses faster than the
-gains grow. Its delivered value *peaks around 10 % participation and then falls*,
-to 3.3 % at 40 %, while the capped version climbs to 22 %. Capping turns a
-strategy that degrades with success into one that improves with it.
-
-**The chains are the product.** Two-party swaps — the strongest version of "just
-ask your neighbour", run to exhaustion under the same fairness rules — reunite
-4.8 % of groups at 10 % participation against 13.3 % for the solver, and lose
-across the entire range. They enjoy the best possible acceptance odds, being only
-ever two people, and still lose.
-
-Full numbers, method and caveats in [`docs/liquidity.md`](docs/liquidity.md).
-
----
-
-## Signing up
-
-The flight page is server-rendered and lives at a link you can paste into a group
-chat: `/f/W6-3234/2026-10-12`. Anyone can open it, and anyone can see how busy the
-flight is — **counts only, never names or seats**, because looking alive matters
-for a product whose whole problem is liquidity, and because a stranger has no
-business knowing who is on your aircraft.
-
-Signing in is the Telegram Login Widget: one click, no password, no email, and no
-phone number ever reaches us. That last part is the reason it is Telegram rather
-than SMS or WhatsApp — joining a group chat would expose your number to strangers
-who also know exactly when you are away from home.
-
-Then three questions, which fill in the weights from §8: how many of you, how much
-sitting together matters, which seat you would rather have. **Never a slider and
-never free text.** A slider invites a precision nobody has, and free text cannot be
-optimised over. The browser sends *answers*; the server decides what they are
-worth — otherwise anyone could post themselves a `w_adjacency` of 10000 and
-monopolise every match run.
-
-No seat is asked for here. Weeks before departure there is no seat to give: the
-airline assigns it at check-in, and that is when the bot asks.
-
-## Closing the loop
-
-When check-in opens the bot asks for your seat. You reply `14A` — or `14A, 22F`, or
-`we're in 14A and 22F`, or `W6 3234: 14A, 22F` if you have more than one flight in
-the air. The parser is deliberately generous, because you are answering this in an
-airport and you are doing us a favour by answering at all.
-
-Then, if the solver finds something, a message with two buttons.
-
-**A proposal is atomic: it happens when everyone in the cycle accepts, and not
-before.** One decline ends it for all of them. That sounds harsh, and it is the
-only coherent rule — a cycle with a hole in it would leave somebody moving into a
-seat that nobody is vacating. Nobody is worse off when it fails, because until
-people physically sit down the airline's own allocation is untouched.
-
-The same reasoning settles what happens if you accept and then pull out: the cycle
-dies for everyone and a fresh match run starts looking immediately. Its mirror
-image is a rule the worker already enforces — **a proposal somebody has already
-accepted is never superseded**, however good a later idea the solver has.
-
-When the last person accepts, everyone gets a link to `/a/<token>`: a page with the
-flight, the names and who moves where. That page is the product's entire output.
-It needs no login, because the point is that you can hold up a phone at the gate.
-The token is 128 random bits, it is `noindex`, and it stops existing when
-`purge_flight` runs.
-
-## The worker
-
-One process, polling one table. `FOR UPDATE SKIP LOCKED` means several workers can
-share the queue without ever being handed the same job, and it costs one index —
-no broker, no scheduler daemon, no cron.
-
-| job | when | what it does |
-|---|---|---|
-| `verify_flight` | a flight is first mentioned | one AeroDataBox call, fills in route, aircraft and times, then queues everything below |
-| `checkin_reminder` | check-in opens | asks each registered party for their seats |
-| `match_run` | T-20h, T-12h, T-4h, and on every seat submission | solves, writes proposals |
-| `expire_proposals` | every 10 minutes | times out stale offers, frees their parties, re-queues itself |
-| `purge_flight` | departure + 24h | deletes every personal trace of the flight |
-
-Each job runs in one transaction: raise and the work is rolled back and retried
-with backoff, return and the result commits together with the job being marked
-done. Telegram calls sit deliberately outside that boundary — they cannot be
-rolled back, and an unannounced proposal is recoverable where a rolled-back match
-run is just wasted work.
-
-There is no cron anywhere. `verify_flight` queues a flight's whole life the moment
-its departure time is known, and `expire_proposals` re-queues itself.
-
-### Replacing an offer that is already on the table
-
-A match run can find something better for someone who is already looking at a
-proposal. Two rules decide what happens, and both are about not being rude:
-
-- a new proposal replaces a live one only if **every** party it touches does
-  strictly better;
-- a proposal that **anyone has already accepted** is never superseded, whatever
-  the solver finds afterwards.
+The solver stays fast. Its 95th-percentile solve time is under 1.4 seconds up to
+30% participation and 5.3 seconds at 40%, inside a 10-second limit. The method,
+full tables and caveats are in [docs/liquidity.md](docs/liquidity.md).
 
 ## Architecture
 
-Two processes and a database. That is the whole thing.
+Two processes and one database.
 
 ```
-Next.js (TS) on Vercel  ──►  Telegram Bot API  (login + notifications)
-        │
-        ▼
-   Postgres (Neon)  ◄──jobs──►  solver worker (Python, OR-Tools CP-SAT)
-        │
-        ▼
-   AeroDataBox  (one call per flight, cached hard)
+Next.js (Vercel)  ------>  Telegram Bot API  (sign-in and notifications)
+       |
+       v
+Postgres (Neon)  <--jobs-->  worker (Python, OR-Tools CP-SAT)
+       |
+       v
+AeroDataBox  (one lookup per flight, cached)
 ```
 
-The web tier never runs the solver in-request; it enqueues a job. The worker polls
-the `jobs` table with `FOR UPDATE SKIP LOCKED`. **Postgres is the queue** — no
-Redis, no Celery, one fewer moving part.
+The web app never runs the solver during a request. It adds a row to a `jobs`
+table, and the worker picks jobs up with `FOR UPDATE SKIP LOCKED`, so several
+workers can share the queue without ever taking the same job. Postgres is the
+queue. There is no Redis, Celery or message broker.
 
-### Why web and not a native app
+| job | when | what it does |
+|---|---|---|
+| `verify_flight` | someone signs up for a new flight | looks the flight up once, stores the route, aircraft and times, then schedules the jobs below |
+| `checkin_reminder` | check-in opens | asks each party for its seats |
+| `match_run` | 20, 12 and 4 hours before departure, and after each seat submission | runs the solver and writes proposals |
+| `expire_proposals` | every 10 minutes | closes proposals nobody answered in time |
+| `purge_flight` | 24 hours after departure | deletes all personal data about the flight |
 
-The product is used twice a year for twenty minutes. Nobody installs an app for
-that. The web gives the one thing that matters: a **shareable link**
-(`/f/W6-3234/2026-10-12`) that goes into a WhatsApp group, gets posted to Reddit,
-and is indexed by Google. Flight-number searches are the only acquisition channel
-with the right granularity, so flight pages are server-rendered.
+Each job runs in a single transaction. If it fails, its work is rolled back and
+retried with backoff. Telegram messages are sent outside the transaction, because
+a message cannot be taken back.
 
-The single weakness of the web — push notifications on iOS — is covered by the
-Telegram bot.
+If the flight data API is down, out of quota or does not know the flight, nothing
+breaks. The flight is marked unverified, a generic seat layout is used, and
+check-in, match runs and the purge are scheduled from the departure date alone.
 
-### Indexing a URL space of tens of millions
+### Why a website and not an app
 
-Making flight pages indexable means inviting crawlers into every carrier times
-every flight number times a year of dates. Two consequences fell out of that, and
-both changed the code rather than just the metadata.
+People would use this twice a year for twenty minutes, and nobody installs an app
+for that. A website offers the one thing that matters: a link to a specific flight
+that can be dropped into a group chat and found by searching for the flight
+number. Flight pages are server-rendered for that reason. The bot covers the one
+thing websites do badly, which is notifications on iOS.
 
-**The flight page does not write.** It used to create the `flights` row it was
-about, which also queued the one AeroDataBox call that flight will ever get. That
-was harmless while nothing linked here and became a liability the moment the pages
-were meant to be crawled: a bot walking the URL space would have spent the whole
-600-call monthly quota in an afternoon and filled the table with flights nobody
-asked about. The row is now created on sign-up, behind a Telegram login, so a real
-person asked for it. "One API call per flight" came out stronger — a flight nobody
-joined costs nothing at all.
+### A URL space of tens of millions
 
-That rule has no observable symptom when it breaks: every page still renders and
-every other test still passes, and the only evidence is a quota that is gone by
-mid-month. So there is a test that reads the page's source and fails if a write
-creeps back in.
+Every airline, flight number and date has a valid page, which means tens of
+millions of addresses open to search engine crawlers. That shaped the code in
+three ways:
 
-**A login raises the price of that attack without bounding it**, though — a
-Telegram account takes half a minute to make, and an authenticated script can walk
-the same URL space by hand. So creating a flight is metered per account: five new
-flights a day by default, refused with a 429 after that. Joining a flight that
-already exists is free and unmetered, because it costs nothing and ten people
-converging on one flight is the product working rather than abuse. Whoever loses
-the race to create a flight is not charged for it — somebody else already paid.
-
-**Empty pages are not indexed.** A flight nobody has joined is `noindex, follow`
-and stays out of the sitemap; one signed-up party flips both. Offering Google
-millions of near-identical empty pages is how a site gets classified as thin
-content and loses the rankings it does deserve. `follow` stays on, so a shared
-link to an empty flight still passes the crawler through.
-
-Structured data follows the same rule of only claiming what we hold: it is emitted
-only for flights AeroDataBox has confirmed, every unknown field is omitted rather
-than guessed, and a departure timestamp that disagrees with the date in the URL is
-dropped rather than contradicting the page it sits on.
-
----
+- **Viewing a flight page writes nothing.** A flight is only created when a
+  signed-in user joins it. Otherwise a crawler could spend the monthly flight
+  lookup quota in an afternoon. Breaking this rule would produce no visible error,
+  so a test reads the page's source and fails if a write appears.
+- **Creating flights is rate-limited per account**, to five new flights a day by
+  default. Joining a flight that already exists is never limited, since it costs
+  nothing and is exactly what the product needs.
+- **Empty flight pages are not indexed.** A flight nobody has joined is marked
+  `noindex` and left out of the sitemap until the first person signs up, so search
+  engines are not offered millions of nearly identical empty pages.
 
 ## Privacy
 
-These are design constraints, not a policy page written afterwards.
+These rules were part of the design from the start.
 
-- **No phone numbers, ever.** That is why authentication is Telegram and not SMS
-  or WhatsApp. Joining a WhatsApp group would expose your number to strangers who
-  also know when you are not at home — an unacceptable trade for a product whose
-  entire purpose is avoiding an awkward moment.
-- **No full names.** Only a display name you choose, 40 characters, nickname or
-  first name plus an initial.
-- **Raw boarding-pass barcodes are never stored.** Parsed in the browser, the
-  useful fields extracted, everything else discarded — including the passenger
-  name the barcode contains.
-- **Automatic deletion.** A `purge_flight` job runs 24 hours after departure and
-  deletes parties, members, proposals and assignments. What survives is one
-  anonymous aggregate row per flight.
-- No third-party trackers. No Google Analytics.
-- No personal data in URLs. The agreement token is 128 random bits and expires.
+- **No phone numbers.** That is why sign-in uses Telegram rather than SMS or
+  WhatsApp. A group chat would show your number to strangers who also know when
+  you will be away from home.
+- **No full names.** Everyone chooses a display name of up to 40 characters.
+- **Boarding pass barcodes never reach the server.** They are read in the browser,
+  six fields per flight are extracted, and everything else, including the
+  passenger's name, is thrown away.
+- **Automatic deletion.** Everything personal about a flight is deleted 24 hours
+  after departure. Only an anonymous summary row is kept.
+- **No third-party trackers or analytics.** Fonts are served from the site's own
+  domain.
+- **No personal data in URLs.** Agreement links use a random 128-bit token and
+  expire.
 
-### On boarding-pass verification
+## Boarding pass verification
 
-Boarding-pass barcodes follow IATA BCBP (Resolution 792) and contain the flight,
-the seat and the passenger name. We can read one. We **cannot prove it is real**:
-the standard's security section is optional, almost no airline uses it, and the
-keys are not public.
+Boarding pass barcodes follow the IATA BCBP standard (Resolution 792) and contain
+the flight, the seat and the passenger's name. They can be read, but they cannot be
+proven genuine: the standard's signature is optional, almost no airline uses it,
+and the keys are not public.
 
-So verification is a **badge, never a gate** — no tier is required to take part,
-and the solver gives the tier only a 5% thumb on the scale. The badge says
-"boarding pass checked", not "verified traveller", because the second would be a
-claim about a stranger that we cannot back.
+So verification is a badge, never a requirement. Anyone can take part by typing
+their seat, and a checked boarding pass only gives a small priority bonus in the
+solver. The badge says "boarding pass checked" rather than "verified traveller",
+because the second is a claim the system cannot back up.
 
-What actually raises the cost of a fake is the cross-checks, all of which run on
-the server:
+What makes faking it costly is a set of server-side checks. The pass has to match
+a flight the user joined, on the right date and route. The seat has to exist on
+that aircraft. And both the seat and the check-in sequence number have to be
+unique on the flight. Those last two are database constraints, and because both are
+scarce, a fake account has to use real ones without knowing which are taken.
 
-1. the flight has to be one you are signed up for, on the right date;
-2. the route has to match what the flight API told us, when it told us anything;
-3. the seat has to exist on that aircraft type;
-4. **a seat belongs to exactly one person per flight**;
-5. **a check-in sequence number belongs to exactly one person per flight**.
+Barcodes are decoded with the browser's built-in `BarcodeDetector`, so no barcode
+library is shipped to visitors. Safari and Firefox do not support it yet, and there
+the user can paste the barcode text instead.
 
-The last two are the good ones, and they are free: both are unique indexes rather
-than code, and both are scarce per flight, so a Sybil attack has to burn real ones
-and cannot know which are already taken.
+## Tech stack
 
-The decoding is the browser's own `BarcodeDetector`, which reads PDF417 and Aztec
-with no library — so no barcode dependency ships to visitors. Safari and Firefox
-do not have it, and there the same screen accepts the barcode text pasted in. Both
-paths parse in the page and post six fields per leg; the raw payload never leaves
-the tab, which is also why the Telegram bot politely refuses a photo of a pass and
-links to the flight page instead.
+- **Web:** Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS
+- **Database:** PostgreSQL with plain SQL migrations and `postgres.js`, no ORM
+- **Worker and solver:** Python 3.13, OR-Tools CP-SAT, `psycopg`
+- **Sign-in and notifications:** Telegram Login Widget and Bot API
+- **Flight data:** AeroDataBox
+- **Hosting:** Vercel for the web app, Neon for Postgres, a container host for the
+  worker
 
----
+## Running it locally
 
-## Development
+You need Node.js 24 or newer, Python 3.13, and either Docker or a local Postgres.
 
 ```bash
-# database and worker
-cp .env.example .env
-docker compose up -d                 # postgres + worker
+cp .env.example .env                 # set at least SESSION_SECRET
+set -a; source .env; set +a          # export the variables to this shell
+
+docker compose up -d                 # Postgres and the worker
 npm install --prefix web
 npm run migrate --prefix web
+npm run dev --prefix web             # http://localhost:3000
+```
 
-# web
-npm run dev --prefix web             # :3000
-npm test --prefix web                # auth, sessions, seat/URL/boarding-pass parsing
-TEST_DATABASE_URL=postgres://… npm run test:db --prefix web   # proposals, seats,
-                                                              # verification, sitemap,
-                                                              # quota, concurrency
+To run the worker without Docker:
 
-# solver and worker, outside docker
+```bash
 cd solver
-python3.13 -m venv .venv && .venv/bin/pip install -r requirements.txt
-.venv/bin/python -m pytest
-.venv/bin/python worker.py           # poll forever
-.venv/bin/python worker.py --once    # drain the queue and exit
+python3.13 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/python worker.py           # keeps polling for jobs
+.venv/bin/python worker.py --once    # processes the queue once and exits
 ```
 
-The database tests need somewhere to run. They `TRUNCATE`, so point them at a
-throwaway database and never at anything real:
+`AERODATABOX_MODE` controls flight lookups. `off` (the default) makes no calls and
+estimates times from the date, `fixture` uses the canned responses in
+`solver/fixtures/`, and `live` calls the real API and needs `RAPIDAPI_KEY`.
+
+### Tests
 
 ```bash
-TEST_DATABASE_URL=postgres://seatswap:seatswap@localhost:5432/seatswap_test \
-  .venv/bin/python -m pytest
+cd web && npm test                          # TypeScript unit tests, no database
+cd solver && .venv/bin/python -m pytest     # Python tests
 ```
 
-Without it they skip. The tests put AeroDataBox in fixture mode
-(`AERODATABOX_MODE=fixture`), so they never open a socket to it. Left unset, the
-worker defaults to `off`: no calls at all, every flight unverified, and each
-flight's check-in, match runs and purge estimated from its date. That is how to
-run it with no API key. Set `live` once you have one — RapidAPI's free Basic
-plan (400 units a month, 2 per flight) covers about 200 new flights a month.
-
-To point Telegram at the webhook, once per deployment:
+Tests that need a database are skipped unless `TEST_DATABASE_URL` is set. They
+empty the tables they use, so point it at a throwaway database:
 
 ```bash
-curl -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook" \
-  -H 'Content-Type: application/json' \
-  -d "{\"url\": \"$PUBLIC_BASE_URL/api/telegram/webhook\",
-       \"secret_token\": \"$TELEGRAM_WEBHOOK_SECRET\",
-       \"allowed_updates\": [\"message\", \"callback_query\"]}"
+TEST_DATABASE_URL=postgres://... npm run test:db --prefix web
+TEST_DATABASE_URL=postgres://... .venv/bin/python -m pytest
 ```
 
-The secret token is not optional. Telegram sends it back as a header on every
-request, and without checking it the endpoint is an unauthenticated way to act as
-any user — the payload names its own `chat.id`.
+The utility function exists twice, in TypeScript for the preview on the page and
+in Python for the solver. `solver/tests/test_cross_language.py` runs the same cases
+through both and checks that the results are identical.
 
-The solver and the web app **share one seat-map file** (`web/config/seatmaps.json`)
-and implement the utility function twice, in TypeScript for the UI preview and in
-Python for the solver. `solver/tests/test_cross_language.py` runs the same cases
-through both and asserts the integers are identical — if they ever drift, the UI
-would promise a gain the solver never optimised for.
+## Status
 
----
+The full flow works end to end: sign-up, seat collection through the bot or a
+boarding pass, match runs, proposals in Telegram and the agreement page. There are
+439 automated tests (240 in Python, 199 in TypeScript), including concurrency tests
+that run against a real database. The project has not been deployed yet.
 
-## Non-goals
+Comments in the code sometimes refer to sections of an internal design document,
+for example `CLAUDE.md §14`. That document is not published.
 
-No payments. No reputation, ratings or stars. No native apps. No chat. No Kafka,
-Kubernetes, microservices or Redis. No machine learning in the solver — this is
-combinatorial optimisation, not prediction. The reasoning for each is in
-`CLAUDE.md`.
+## License
+
+Copyright (c) 2026 Gabriel Niculaesei. All rights reserved.
+
+The source code is published to be read, not reused. It may not be copied,
+modified, distributed or deployed without written permission. See
+[LICENSE](LICENSE).
