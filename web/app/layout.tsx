@@ -51,6 +51,11 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
   },
   robots: { index: true, follow: true },
+  // Google Search Console ownership check. Read at build time, so setting it
+  // needs a redeploy; unset, no tag is emitted.
+  verification: process.env.GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.GOOGLE_SITE_VERIFICATION }
+    : undefined,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
