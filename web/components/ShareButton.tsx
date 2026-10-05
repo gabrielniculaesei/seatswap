@@ -42,21 +42,21 @@ export default function ShareButton({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <button
         type="button"
         onClick={share}
         className={
-          'w-full rounded px-4 py-2 font-medium '
+          'w-full rounded-lg border px-4 py-[11px] text-[14.5px] font-semibold transition-colors '
           + (primary
-            ? 'bg-accent text-white hover:bg-accent-dark'
-            : 'border border-field hover:border-accent')
+            ? 'border-accent bg-accent text-white hover:border-accent-dark hover:bg-accent-dark'
+            : 'border-field bg-white text-ink hover:border-accent')
         }
       >
         Share this flight
       </button>
       {note ? (
-        <p role="status" className="break-words text-sm text-muted">{note}</p>
+        <p role="status" className="break-words text-[13px] text-body">{note}</p>
       ) : null}
     </div>
   );

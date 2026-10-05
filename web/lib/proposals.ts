@@ -29,6 +29,14 @@ export interface ProposalView {
   departure_date: string;
 }
 
+/** What the agreement page shows: the proposal, and the flight it is on. */
+export interface AgreementView extends ProposalView {
+  origin: string | null;
+  destination: string | null;
+  aircraft_type: string | null;
+  seat_map_key: string | null;
+}
+
 export interface Move {
   party_id: number;
   display_name: string;
@@ -59,12 +67,13 @@ export async function loadProposal(proposalId: number): Promise<ProposalView | n
   return rows[0] ?? null;
 }
 
-export async function loadProposalByToken(token: string): Promise<ProposalView | null> {
+export async function loadProposalByToken(token: string): Promise<AgreementView | null> {
   // Length-checked before it reaches the database so a probe cannot make us scan.
   if (!/^[0-9a-f]{32}$/.test(token)) return null;
-  const rows = await sql<ProposalView[]>`
+  const rows = await sql<AgreementView[]>`
     SELECT pr.id, pr.flight_id, pr.status, pr.total_gain, pr.expires_at, pr.agreement_token,
-           f.carrier, f.flight_number, f.departure_date
+           f.carrier, f.flight_number, f.departure_date,
+           f.origin, f.destination, f.aircraft_type, f.seat_map_key
       FROM proposals pr
       JOIN flights f ON f.id = pr.flight_id
      WHERE pr.agreement_token = ${token}
@@ -160,7 +169,7 @@ export async function respond(
       return {
         ok: true,
         settled: false,
-        message: 'No problem — you keep the seat you have. I will keep looking.',
+        message: 'No problem, you keep the seat you have. I will keep looking.',
         parties: everyone.map(({ party_id, telegram_user_id, display_name }) => ({
           party_id, telegram_user_id, display_name,
         })),
@@ -174,7 +183,7 @@ export async function respond(
         settled: false,
         message:
           `Accepted. Waiting for ${outstanding} other ${outstanding === 1 ? 'person' : 'people'} `
-          + 'to confirm — I will let you know.',
+          + 'to confirm. I will let you know.',
         parties: everyone.map(({ party_id, telegram_user_id, display_name }) => ({
           party_id, telegram_user_id, display_name,
         })),

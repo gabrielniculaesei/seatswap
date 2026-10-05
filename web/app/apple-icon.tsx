@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-import { SeatMark } from '../components/OgCard.tsx';
+import { Mark } from '../components/OgCard.tsx';
 
 /**
  * Home-screen icon for iOS, which will not use an SVG favicon. iOS rounds the
@@ -15,7 +15,7 @@ export default function AppleIcon() {
   return new ImageResponse(
     (
       <div style={{ width: '100%', height: '100%', display: 'flex', background: '#0f766e' }}>
-        <SeatMark size={180} />
+        <Mark size={180} />
       </div>
     ),
     size,

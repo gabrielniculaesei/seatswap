@@ -4,13 +4,13 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useId, useState } from 'react';
 
 import { type BoardingPassLeg, parseBoardingPass } from '../../../../lib/bcbp.ts';
-import VerificationBadge from '../../../../components/VerificationBadge.tsx';
+import { Card, CardFooter, CardHeader } from '../../../../components/Chrome.tsx';
 
 /**
  * Tier 1: reading the seats off a boarding pass (CLAUDE.md §10).
  *
  * Everything here happens in the browser. The image is decoded here, the barcode
- * is parsed here, and what goes to the server is six fields per leg — never the
+ * is parsed here, and what goes to the server is six fields per leg: never the
  * passenger name, never the raw payload (CLAUDE.md §13.1). That is not a detail
  * of the implementation, it is the reason we can ask for a boarding pass at all.
  *
@@ -26,7 +26,6 @@ import VerificationBadge from '../../../../components/VerificationBadge.tsx';
 interface Props {
   size: number;
   designator: string;
-  verificationTier: number;
 }
 
 /** BarcodeDetector is not in lib.dom yet; this is the slice of it we use. */
@@ -49,11 +48,11 @@ interface ReadPass {
 
 function summarise(legs: BoardingPassLeg[]): string {
   return legs
-    .map((leg) => `${leg.carrier}${leg.flightNumber} seat ${leg.seat ?? '—'}`)
+    .map((leg) => `${leg.carrier}${leg.flightNumber} seat ${leg.seat ?? 'none'}`)
     .join(' · ');
 }
 
-export default function BoardingPassForm({ size, designator, verificationTier }: Props) {
+export default function BoardingPassForm({ size, designator }: Props) {
   const router = useRouter();
   const pasteId = useId();
   const [formats, setFormats] = useState<string[] | null>(null);
@@ -108,7 +107,7 @@ export default function BoardingPassForm({ size, designator, verificationTier }:
           setStatus('error');
           setMessage(
             `No barcode in ${file.name}. A screenshot of the pass usually works better `
-            + 'than a photo of a screen — or paste the barcode text below.',
+            + 'than a photo of a screen, or you can paste the barcode text below.',
           );
           continue;
         }
@@ -160,142 +159,139 @@ export default function BoardingPassForm({ size, designator, verificationTier }:
   const canScan = formats !== null && formats.length > 0;
 
   return (
-    <section className="rounded-lg border border-line p-5">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-base font-medium">Use your boarding pass</h2>
-        <VerificationBadge tier={verificationTier} />
-      </div>
-
-      <p className="mt-2 text-sm text-muted">
-        Scan the barcode instead of typing {size === 1 ? 'your seat' : 'your seats'} and
-        we fill {size === 1 ? 'it' : 'them'} in for you. It also earns a badge other
-        travellers can see — we check the pass against {designator}, against the
-        aircraft, and against the seats already claimed.
-      </p>
-      <p className="mt-2 text-sm text-muted">
-        The barcode is read on this page and never sent to us. We keep the seat and
-        the check-in number; we do not read, send or store your name.
-      </p>
-
-      {canScan ? (
-        <label className="mt-4 block">
-          <span className="text-sm font-medium">
-            {size === 1 ? 'Your boarding pass' : `All ${size} boarding passes`}
-          </span>
-          <input
-            type="file"
-            accept="image/*"
-            multiple={size > 1}
-            onChange={onFiles}
-            disabled={scanning}
-            // Outlined, not filled: typing the seat above is the page's primary
-            // action and this is the optional upgrade to it.
-            className="mt-1 block w-full text-sm text-muted file:mr-3 file:cursor-pointer file:rounded
-                       file:border file:border-solid file:border-accent file:bg-white file:px-3
-                       file:py-2 file:text-sm file:font-medium file:text-accent
-                       hover:file:bg-accent/5"
-          />
-          <span className="mt-1 block text-xs text-muted">
-            A screenshot of the pass reads more reliably than a photo of a screen.
-            {scanning ? ' Reading…' : null}
-          </span>
-        </label>
-      ) : null}
-
-      {formats !== null && !canScan ? (
-        <p className="mt-4 rounded border border-line bg-gray-50 p-3 text-sm text-muted">
-          This browser cannot read barcodes on its own. You can paste the barcode
-          text below, or just send your seat {size === 1 ? 'number' : 'numbers'} above —
-          that works just as well, it simply does not carry a badge.
+    <Card>
+      <CardHeader title="Use your boarding pass" meta="Optional" />
+      <div className="flex flex-col gap-3 p-4">
+        <p className="text-sm text-body">
+          Scan the barcode and we fill {size === 1 ? 'your seat' : 'your seats'} in for
+          you. It also earns a badge other travellers can see, because we check the
+          pass against {designator}, against the aircraft, and against the seats
+          already claimed.
         </p>
-      ) : null}
 
-      <div className="mt-3">
-        <button
-          type="button"
-          onClick={() => setShowPaste((open) => !open)}
-          className="text-sm text-accent underline underline-offset-2"
-        >
-          {showPaste ? 'Hide' : 'Paste the barcode text instead'}
-        </button>
-        {showPaste ? (
-          <div className="mt-2 space-y-2">
-            <label htmlFor={pasteId} className="block text-sm font-medium">
-              Barcode text
+        {canScan ? (
+          <div className="flex flex-wrap items-center gap-2.5 rounded-lg border border-dashed border-slot bg-well p-[13px]">
+            {/* The real input is hidden behind a button-shaped label, so the
+                browser's "No file chosen" text does not sit in the design. */}
+            <label
+              className={
+                'cursor-pointer rounded-[7px] border border-accent bg-white px-[13px] py-2 text-[13px] '
+                + 'font-semibold text-accent hover:bg-accent/[.06] focus-within:outline '
+                + 'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent'
+              }
+            >
+              <input
+                type="file"
+                accept="image/*"
+                multiple={size > 1}
+                onChange={onFiles}
+                disabled={scanning}
+                className="sr-only"
+              />
+              {scanning
+                ? 'Reading…'
+                : size === 1 ? 'Choose your boarding pass' : `Choose ${size} boarding passes`}
             </label>
-            <textarea
-              id={pasteId}
-              value={pasted}
-              onChange={(event) => setPasted(event.target.value)}
-              rows={3}
-              placeholder="M1ROSSI/ANNA          EABC123 OTPBGYFR 1234 285Y014A0025 100"
-              aria-describedby={`${pasteId}-hint`}
-              autoComplete="off"
-              autoCapitalize="characters"
-              spellCheck={false}
-              // 16px on phones: iOS Safari zooms into any field smaller than
-              // that, and iOS is exactly where this box gets used, because
-              // Safari has no BarcodeDetector.
-              className="w-full rounded border border-field px-3 py-2 font-mono text-base
-                         focus:border-accent sm:text-xs"
-            />
-            <p id={`${pasteId}-hint`} className="text-xs text-muted">
-              Starts with <code>M1</code>. One pass per line.
+            <span className="text-[12.5px] text-body">
+              A screenshot reads better than a photo of a screen.
+            </span>
+          </div>
+        ) : null}
+
+        {formats !== null && !canScan ? (
+          <p className="rounded-lg border border-dashed border-slot bg-well p-[13px] text-[13px] text-body">
+            This browser cannot read barcodes on its own. You can paste the barcode
+            text below, or just send your seat {size === 1 ? 'number' : 'numbers'}. That
+            works just as well, it simply does not carry a badge.
+          </p>
+        ) : null}
+
+        <div>
+          <button
+            type="button"
+            onClick={() => setShowPaste((open) => !open)}
+            aria-expanded={showPaste}
+            className="link text-[13.5px]"
+          >
+            {showPaste ? 'Hide the barcode text box' : 'Paste the barcode text instead'}
+          </button>
+          {showPaste ? (
+            <div className="mt-2 flex flex-col gap-1.5">
+              <label htmlFor={pasteId} className="label-mono">
+                Barcode text
+              </label>
+              <textarea
+                id={pasteId}
+                value={pasted}
+                onChange={(event) => setPasted(event.target.value)}
+                rows={3}
+                placeholder="M1ROSSI/ANNA          EABC123 OTPBGYFR 1234 285Y014A0025 100"
+                aria-describedby={`${pasteId}-hint`}
+                autoComplete="off"
+                autoCapitalize="characters"
+                spellCheck={false}
+                // 16px on phones: iOS Safari zooms into any field smaller than
+                // that, and iOS is exactly where this box gets used, because
+                // Safari has no BarcodeDetector.
+                className="input-text font-mono sm:text-xs"
+              />
+              <p id={`${pasteId}-hint`} className="text-[12.5px] text-body">
+                Starts with <code className="font-mono">M1</code>. One pass per line.
+              </p>
+              <button type="button" onClick={onPaste} className="btn-secondary self-start px-3 py-1.5 text-[13px]">
+                Read it
+              </button>
+            </div>
+          ) : null}
+        </div>
+
+        {passes.length > 0 ? (
+          <div className="flex flex-col gap-2">
+            <p className="label-mono">
+              Read {passes.length} of {size}
             </p>
+            <ul className="divide-y divide-soft rounded-lg border border-line">
+              {passes.map((pass, index) => (
+                <li key={`${pass.summary}-${index}`} className="flex items-center justify-between gap-2 px-3 py-2">
+                  <span className="font-mono text-xs">{pass.summary}</span>
+                  <button
+                    type="button"
+                    onClick={() => setPasses((current) => current.filter((_, i) => i !== index))}
+                    className="text-xs text-body underline underline-offset-2 hover:text-ink"
+                  >
+                    remove
+                  </button>
+                </li>
+              ))}
+            </ul>
             <button
               type="button"
-              onClick={onPaste}
-              className="rounded border border-field px-3 py-1.5 text-sm font-medium hover:border-accent"
+              onClick={submit}
+              disabled={status === 'saving' || passes.length !== size}
+              className="btn-primary w-full"
             >
-              Read it
+              {status === 'saving'
+                ? 'Checking…'
+                : passes.length === size
+                  ? 'Use these seats'
+                  : `Add ${size - passes.length} more`}
             </button>
           </div>
         ) : null}
-      </div>
 
-      {passes.length > 0 ? (
-        <div className="mt-4 space-y-2">
-          <p className="text-sm font-medium">
-            Read {passes.length} of {size}:
-          </p>
-          <ul className="space-y-1 text-sm">
-            {passes.map((pass, index) => (
-              <li key={`${pass.summary}-${index}`} className="flex items-center justify-between gap-2">
-                <span className="font-mono text-xs">{pass.summary}</span>
-                <button
-                  type="button"
-                  onClick={() => setPasses((current) => current.filter((_, i) => i !== index))}
-                  className="text-xs text-muted underline underline-offset-2"
-                >
-                  remove
-                </button>
-              </li>
-            ))}
-          </ul>
-          <button
-            type="button"
-            onClick={submit}
-            disabled={status === 'saving' || passes.length !== size}
-            className="w-full rounded bg-accent px-4 py-2 font-medium text-white
-                       hover:bg-accent-dark disabled:opacity-50"
+        {message ? (
+          <p
+            role={status === 'error' ? 'alert' : 'status'}
+            className={`text-[13px] ${status === 'error' ? 'text-danger' : 'text-accent'}`}
           >
-            {status === 'saving'
-              ? 'Checking…'
-              : passes.length === size
-                ? 'Use these seats'
-                : `Add ${size - passes.length} more`}
-          </button>
-        </div>
-      ) : null}
-
-      {message ? (
-        <p
-          role={status === 'error' ? 'alert' : 'status'}
-          className={`mt-3 text-sm ${status === 'error' ? 'text-red-600' : 'text-accent'}`}
-        >
-          {message}
-        </p>
-      ) : null}
-    </section>
+            {message}
+          </p>
+        ) : null}
+      </div>
+      <CardFooter>
+        The barcode is read on this page and stays in this tab. We keep the seat and
+        the check-in number, and nothing else off it.
+      </CardFooter>
+    </Card>
   );
 }

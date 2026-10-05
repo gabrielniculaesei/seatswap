@@ -14,7 +14,10 @@ import {
   partyFor,
   seatsFor,
 } from '../../../../lib/flights.ts';
+import { Card, CardFooter, CardHeader, FactList, NavLink, PageShell, SectionHeading } from '../../../../components/Chrome.tsx';
 import ShareButton from '../../../../components/ShareButton.tsx';
+import { formatDay, formatUtcDay, formatUtcMinute } from '../../../../lib/format.ts';
+import { loadSeatMap } from '../../../../lib/seatmap.ts';
 import { absoluteUrl, flightJsonLd, flightMeta, flightPath } from '../../../../lib/seo.ts';
 import BoardingPassForm from './BoardingPassForm.tsx';
 import RegistrationForm from './RegistrationForm.tsx';
@@ -62,6 +65,14 @@ const EMPTY_SUMMARY: FlightSummary = {
   seatsSubmitted: 0,
   verified: 0,
 };
+
+/**
+ * Roughly where swaps start working: about 10 % of one cabin, per the
+ * simulator's results in docs/liquidity.md.
+ */
+const LIQUIDITY_TRAVELLERS = 20;
+
+const ACROSS = ['', '', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 
 /** What we know about a flight, whether or not it has a row yet. */
 function viewOf(route: { carrier: string; flightNumber: string; departure: string }, row: Flight | null) {
@@ -134,16 +145,18 @@ export default async function FlightPage({ params, searchParams }: PageProps) {
     aircraft_type: view.aircraftType,
     seat_map_key: view.seatMapKey,
   });
+  const seatMap = loadSeatMap(view.seatMapKey);
 
   const session = verify((await cookies()).get(COOKIE_NAME)?.value);
   const existing = session && row ? await partyFor(row.id, session.uid) : null;
   const currentSeats = existing ? await seatsFor(existing.id) : [];
   const checkinOpen =
     view.checkinOpensUtc !== null && view.checkinOpensUtc.getTime() <= Date.now();
+  // We never learned the departure time, so every time below it is our estimate.
+  const estimated = view.scheduledDepartureUtc === null;
 
-  const designator = `${view.carrier}${view.flightNumber}`;
-  const routeText =
-    view.origin && view.destination ? `${view.origin} → ${view.destination}` : null;
+  const designator = `${view.carrier} ${view.flightNumber}`;
+  const hasRoute = view.origin !== null && view.destination !== null;
   const pageUrl = absoluteUrl(flightPath(view.carrier, view.flightNumber, view.departureDate));
 
   const jsonLd = flightJsonLd({
@@ -156,6 +169,40 @@ export default async function FlightPage({ params, searchParams }: PageProps) {
     scheduledDepartureUtc: view.scheduledDepartureUtc,
     apiStatus: view.apiStatus,
     url: pageUrl,
+  });
+
+  const phase = checkinOpen
+    ? { label: 'Check-in open', className: 'border-accent bg-accent text-white' }
+    : existing
+      ? { label: 'Signed up', className: 'border-accent/30 bg-accent/[.08] text-accent' }
+      : summary.parties === 0
+        ? { label: 'Nobody signed up', className: 'border-line-strong bg-track text-body' }
+        : { label: 'Open to join', className: 'border-line-strong bg-track text-body' };
+
+  // Only facts the row actually has: a line that says "unknown" tells nobody
+  // anything, the same reasoning as flightJsonLd.
+  const facts: { term: string; detail: React.ReactNode }[] = [];
+  if (hasRoute) facts.push({ term: 'Route', detail: `${view.origin} to ${view.destination}` });
+  if (!aircraft.estimated) {
+    facts.push({
+      term: 'Aircraft',
+      detail: `${aircraft.label} · ${seatMap.rows} rows, ${ACROSS[seatMap.columns.length] ?? seatMap.columns.length} across`,
+    });
+  }
+  if (view.checkinOpensUtc) {
+    // To the minute when it comes from the real departure time; the day only
+    // when it was estimated from the date, because a minute we made up is
+    // precision we do not have.
+    const when = estimated
+      ? `${formatUtcDay(view.checkinOpensUtc)}, estimated`
+      : formatUtcMinute(view.checkinOpensUtc);
+    facts.push({ term: 'Check-in opens', detail: checkinOpen ? `Open now, since ${when}` : when });
+  }
+  facts.push({
+    term: 'Deleted',
+    detail: view.scheduledDepartureUtc
+      ? `${formatUtcDay(new Date(view.scheduledDepartureUtc.getTime() + 24 * 3600_000))}, 24 hours after departure`
+      : '24 hours after departure',
   });
 
   const registration = (
@@ -173,7 +220,14 @@ export default async function FlightPage({ params, searchParams }: PageProps) {
   );
 
   return (
-    <div className="space-y-8">
+    <PageShell
+      nav={
+        <>
+          <NavLink href="/">Another flight</NavLink>
+          <NavLink href="/privacy">Privacy</NavLink>
+        </>
+      }
+    >
       {jsonLd ? (
         <script
           type="application/ld+json"
@@ -182,21 +236,32 @@ export default async function FlightPage({ params, searchParams }: PageProps) {
         />
       ) : null}
 
-      <header className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {designator} · {view.departureDate}
-        </h1>
-        <p className="text-muted">
-          {routeText ? <>{routeText} · </> : null}
-          {aircraft.label}
-          {aircraft.estimated ? (
-            <span title="We could not identify the aircraft, so seat positions are a best guess.">
-              {' '}(estimated layout)
-            </span>
-          ) : null}
-        </p>
+      <section className="flex flex-col gap-3 pb-6 pt-7">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div className="flex flex-col gap-[5px]">
+            <p className="eyebrow">Flight page · shareable link</p>
+            <h1 className="font-mono text-[clamp(26px,5.4vw,34px)] font-semibold leading-[1.1] tracking-[0.02em]">
+              {designator}
+            </h1>
+            <p className="font-mono text-[12.5px] uppercase tracking-[0.05em] text-body">
+              {formatDay(view.departureDate)}
+              {hasRoute ? <> · {view.origin} → {view.destination}</> : null}
+              {' · '}
+              {aircraft.label}
+              {aircraft.estimated ? (
+                <span title="We could not identify the aircraft, so seat positions are a best guess.">
+                  {' '}(estimated layout)
+                </span>
+              ) : null}
+            </p>
+          </div>
+          <p className={`meta-mono rounded-md border px-2.5 py-[5px] text-[10.5px] ${phase.className}`}>
+            {phase.label}
+          </p>
+        </div>
+
         {row && view.apiStatus === 'unknown' && !view.lookedUp ? (
-          <p className="text-sm text-muted">
+          <p className="max-w-[70ch] text-[13px] text-body">
             We are still checking this flight with our data provider. You can sign up
             now either way.
           </p>
@@ -204,124 +269,139 @@ export default async function FlightPage({ params, searchParams }: PageProps) {
         {row && view.apiStatus === 'unknown' && view.lookedUp ? (
           // Checked and got nothing: the API was down, out of quota, or switched
           // off (AERODATABOX_MODE=off). "Still checking" would be a lie by now.
-          <p className="text-sm text-muted">
+          <p className="max-w-[70ch] text-[13px] text-body">
             We could not look this flight up, so its check-in time and seat layout
             are our best estimate. You can still sign up, and swaps still work.
           </p>
         ) : null}
         {view.apiStatus === 'not_found' ? (
-          <p className="text-sm text-muted">
+          <p className="max-w-[70ch] text-[13px] text-body">
             We could not find this flight in our data provider. That is often just a
-            gap in their coverage — you can still sign up, and swaps will still work.
+            gap in their coverage, and you can still sign up. Swaps will still work.
           </p>
         ) : null}
-      </header>
+      </section>
 
       {left === '1' && !existing ? (
-        <p role="status" className="rounded-lg border border-accent/30 bg-accent/5 p-4 text-sm text-accent">
+        <p role="status" className="mb-4 rounded-card border border-accent/30 bg-accent/[.06] px-4 py-3 text-sm text-accent">
           You have left this flight. Everything we held about you on it has been
           deleted.
         </p>
       ) : null}
 
-      {/* Aggregate only: no names, no seats. This is what a stranger may see. */}
-      <section className="rounded-lg border border-line p-5">
-        <h2 className="text-base font-medium">Who is here so far</h2>
-        {summary.parties === 0 ? (
-          <p className="mt-2 text-muted">
-            Nobody yet. Be first — then send this page to anyone else on your flight.
-            Swaps need a handful of people on the <em>same</em> aircraft to work.
-          </p>
-        ) : (
-          <ul className="mt-3 space-y-1 text-sm text-muted">
-            <li>
-              <strong className="text-ink">{summary.parties}</strong>{' '}
-              {summary.parties === 1 ? 'group' : 'groups'} signed up,{' '}
-              <strong className="text-ink">{summary.travellers}</strong>{' '}
-              {summary.travellers === 1 ? 'traveller' : 'travellers'} in total
-            </li>
-            {summary.wantAdjacency > 0 ? (
-              <li>{summary.wantAdjacency} want to sit together</li>
-            ) : null}
-            {summary.wantWindow > 0 ? <li>{summary.wantWindow} want a window</li> : null}
-            {summary.wantAisle > 0 ? <li>{summary.wantAisle} want an aisle</li> : null}
-            {summary.seatsSubmitted > 0 ? (
-              <li>
-                {summary.seatsSubmitted} have sent their seat numbers
-                {summary.verified > 0 ? `, ${summary.verified} off a boarding pass` : null}
-              </li>
-            ) : null}
-          </ul>
-        )}
-        <div className="mt-4">
-          {/* The primary action only when there is nothing else to do: signed up,
-              check-in not open yet. Otherwise signing up or sending seats is. */}
-          <ShareButton
-            url={pageUrl}
-            title={`${designator} on ${view.departureDate} — seat swaps`}
-            primary={existing !== null && !checkinOpen}
-          />
-        </div>
+      <section className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] items-start gap-4">
+        {/* Aggregate only: no names, no seats. This is what a stranger may see. */}
+        <Card>
+          <CardHeader title="Who is here so far" meta="Totals only" />
+          {summary.parties === 0 ? (
+            <p className="p-4 text-sm text-body">
+              Nobody yet. Be first, then send this page to anyone else on your flight.
+              Swaps need a handful of people on the same aircraft before they start
+              working.
+            </p>
+          ) : (
+            <>
+              <dl className="grid grid-cols-[repeat(auto-fit,minmax(88px,1fr))] [&>div+div]:border-l [&>div+div]:border-soft">
+                <Stat value={summary.parties} label={summary.parties === 1 ? 'group' : 'groups'} />
+                <Stat value={summary.travellers} label={summary.travellers === 1 ? 'traveller' : 'travellers'} />
+                {/* Never a "0": an empty stat reads as a flight going nowhere. */}
+                {summary.seatsSubmitted > 0 ? <Stat value={summary.seatsSubmitted} label="sent seats" /> : null}
+              </dl>
+              <div className="flex flex-col gap-2 border-t border-soft px-4 py-3.5">
+                <div className="h-1.5 overflow-hidden rounded-full bg-seat-empty" aria-hidden="true">
+                  <div
+                    className="h-full rounded-full bg-accent"
+                    style={{ width: `${Math.min(100, (summary.travellers / LIQUIDITY_TRAVELLERS) * 100)}%` }}
+                  />
+                </div>
+                <p className="text-[13px] text-body">
+                  {summary.travellers < LIQUIDITY_TRAVELLERS
+                    ? `${summary.travellers} of about ${LIQUIDITY_TRAVELLERS} travellers, which is roughly where swaps start working on a cabin this size.`
+                    : `${summary.travellers} travellers, past the ${LIQUIDITY_TRAVELLERS} or so where swaps start working on a cabin this size.`}
+                </p>
+                {summary.wantAdjacency + summary.wantWindow + summary.wantAisle > 0 ? (
+                  <ul className="flex flex-wrap gap-1.5">
+                    {summary.wantAdjacency > 0 ? <Chip>{summary.wantAdjacency} together</Chip> : null}
+                    {summary.wantWindow > 0 ? <Chip>{summary.wantWindow} window</Chip> : null}
+                    {summary.wantAisle > 0 ? <Chip>{summary.wantAisle} aisle</Chip> : null}
+                  </ul>
+                ) : null}
+              </div>
+            </>
+          )}
+          <CardFooter className="flex flex-col gap-2 py-[13px]">
+            {/* The primary action only when there is nothing else to do: signed up,
+                check-in not open yet. Otherwise signing up or sending seats is. */}
+            <ShareButton
+              url={pageUrl}
+              title={`${designator} on ${formatDay(view.departureDate)}: seat swaps`}
+              primary={existing !== null && !checkinOpen}
+            />
+            <p>No names and no seats, ever, to anyone looking at this page.</p>
+          </CardFooter>
+        </Card>
+
+        <Card>
+          <CardHeader title="This flight" />
+          <FactList facts={facts} />
+        </Card>
       </section>
 
       {/* Before check-in, or before signing up, the questions come first. Once
           check-in is open and you are in, the seats are the point, so they move
-          above preferences you have already answered. */}
-      {existing && checkinOpen ? null : registration}
-
-      {existing ? (
-        <SeatForm
-          size={existing.size}
-          currentSeats={currentSeats}
-          checkinOpen={checkinOpen}
-          checkinOpensAt={
-            view.checkinOpensUtc
-              // To the minute when it comes from the real departure time; the day
-              // only when it was estimated from the date, because a minute we
-              // made up is precision we do not have.
-              ? view.scheduledDepartureUtc
-                ? view.checkinOpensUtc.toISOString().slice(0, 16).replace('T', ' ') + ' UTC'
-                : view.checkinOpensUtc.toISOString().slice(0, 10)
-              : null
-          }
-          checkinEstimated={view.scheduledDepartureUtc === null}
-          verificationTier={existing.verification_tier}
-        />
-      ) : null}
-
-      {/* Only once there is a seat to read: before check-in the pass does not
-          exist yet, and offering it would be the same mistake as asking for the
-          seat in phase one (CLAUDE.md §7). */}
+          above preferences you have already answered. Before check-in there is no
+          seat to send or pass to scan, so neither form shows (CLAUDE.md §7). */}
       {existing && checkinOpen ? (
-        <BoardingPassForm
-          size={existing.size}
-          designator={designator}
-          verificationTier={existing.verification_tier}
-        />
+        <section className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(290px,1fr))] items-start gap-4">
+          <SeatForm
+            size={existing.size}
+            currentSeats={currentSeats}
+            checkinEstimated={estimated}
+            verificationTier={existing.verification_tier}
+          />
+          <BoardingPassForm size={existing.size} designator={designator} />
+        </section>
       ) : null}
 
-      {existing && checkinOpen ? registration : null}
+      <div className="mt-4">{registration}</div>
 
-      <section className="space-y-2 text-sm text-muted">
-        <h2 className="text-base font-medium text-ink">What happens next</h2>
-        {checkinOpen ? (
+      <section className="mt-9 flex flex-col gap-3">
+        <SectionHeading eyebrow="Next" title="What happens next" />
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(270px,1fr))] gap-3 text-sm text-body">
+          {checkinOpen ? (
+            <p>
+              Check-in is open, so seats are being assigned now. Once enough people on
+              this flight have sent theirs, we look for a set of swaps that leaves
+              everyone involved better off.
+            </p>
+          ) : (
+            <p>
+              Your seat does not exist yet. The airline assigns it at check-in, 24 to
+              48 hours before departure, and that is when our bot sends one message
+              asking for your seat number.
+            </p>
+          )}
           <p>
-            Check-in is open, so seats are being assigned now. Once enough people on
-            this flight have sent theirs, we look for a set of swaps that leaves
-            everyone involved better off.
+            You only ever get shown a swap that improves your own situation. If it
+            does not improve, you never hear about it.
           </p>
-        ) : (
-          <p>
-            Your seat does not exist yet — the airline assigns it at check-in,
-            {' '}24 to 48 hours before departure. That is why we ask for it later: when
-            check-in opens, our bot sends one message asking for your seat number.
-          </p>
-        )}
-        <p>
-          You will only ever be shown a swap that improves your own situation. If it
-          does not improve, you never hear about it.
-        </p>
+        </div>
       </section>
+    </PageShell>
+  );
+}
+
+function Stat({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="flex flex-col-reverse gap-0.5 px-4 py-3.5">
+      <dt className="meta-mono tracking-[0.08em]">{label}</dt>
+      <dd className="font-mono text-[26px] font-semibold leading-[1.1]">{value}</dd>
     </div>
+  );
+}
+
+function Chip({ children }: { children: React.ReactNode }) {
+  return (
+    <li className="rounded-md border border-line px-2 py-1 font-mono text-[11px] text-body">{children}</li>
   );
 }

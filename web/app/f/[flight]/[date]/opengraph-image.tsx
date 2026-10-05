@@ -2,6 +2,7 @@ import { ImageResponse } from 'next/og';
 
 import { OG_SIZE, OgCard } from '../../../../components/OgCard.tsx';
 import { parseDepartureDate, parseFlightSlug } from '../../../../lib/flight-id.ts';
+import { formatDay } from '../../../../lib/format.ts';
 
 /**
  * The preview card for one flight — what a shared link looks like in a chat.
@@ -30,7 +31,7 @@ export default async function Image({
   return new ImageResponse(
     slug && departure ? (
       <OgCard
-        eyebrow={`Departing ${departure}`}
+        eyebrow={`Departing ${formatDay(departure)}`}
         headline={`${slug.carrier} ${slug.flightNumber}`}
         detail="On this flight? Swap into a better seat, for free."
       />
@@ -38,7 +39,7 @@ export default async function Image({
       <OgCard
         eyebrow="Free seat swaps, same flight"
         headline="Swap into a better seat."
-        detail="Everyone gains. Nobody asks for a favour."
+        detail="Everyone gains. Nothing to negotiate."
       />
     ),
     size,

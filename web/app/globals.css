@@ -8,6 +8,7 @@
 
 body {
   -webkit-font-smoothing: antialiased;
+  text-wrap: pretty;
 }
 
 @layer base {
@@ -17,5 +18,44 @@ body {
   :focus-visible {
     outline: 2px solid theme('colors.accent.DEFAULT');
     outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .link {
+    @apply text-accent underline decoration-1 underline-offset-2 hover:text-accent-dark;
+  }
+
+  /* The small uppercase mono labels. Always `text-body`: they sit on the page
+     background as often as inside a card. */
+  .eyebrow {
+    @apply font-mono text-[10.5px] uppercase tracking-[0.1em] text-body;
+  }
+  .label-mono {
+    @apply font-mono text-[10px] font-semibold uppercase tracking-[0.09em] text-body;
+  }
+  .meta-mono {
+    @apply font-mono text-[10px] uppercase tracking-[0.07em] text-body;
+  }
+
+  /* Flight number and seat inputs. 19px also keeps iOS Safari from zooming in,
+     which it does on anything under 16px. */
+  .input-mono {
+    @apply w-full rounded-lg border border-field bg-white px-[13px] py-[11px] font-mono
+           text-[19px] font-medium tracking-[0.09em] text-ink
+           focus:border-accent focus:shadow-field;
+  }
+  .input-text {
+    @apply w-full rounded-lg border border-field bg-white px-[13px] py-[10px] text-base
+           text-ink focus:border-accent focus:shadow-field;
+  }
+
+  .btn-primary {
+    @apply rounded-lg bg-accent px-4 py-3 text-[15px] font-semibold text-white
+           transition-colors hover:bg-accent-dark disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply rounded-lg border border-field bg-white px-4 py-[10px] text-sm font-semibold
+           text-ink transition-colors hover:border-accent disabled:opacity-50;
   }
 }

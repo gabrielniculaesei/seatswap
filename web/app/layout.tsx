@@ -1,9 +1,25 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { Archivo, IBM_Plex_Mono } from 'next/font/google';
 
 import { siteUrl } from '../lib/seo.ts';
 import './globals.css';
 
+// Downloaded at build time and served from our own origin, so a visitor's
+// browser never talks to Google (CLAUDE.md §13.5).
+const sans = Archivo({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-sans',
+  display: 'swap',
+});
+const mono = IBM_Plex_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-mono',
+  display: 'swap',
+});
+
+const TITLE = 'seatswap: swap into a better seat, for free';
 const DESCRIPTION =
   'Passengers on the same flight declare the seat they have and the seat they want. '
   + 'A solver finds swaps and chains of swaps where everyone ends up better off. '
@@ -15,15 +31,15 @@ export const metadata: Metadata = {
   // metadata that has to know the deployed origin.
   metadataBase: new URL(siteUrl()),
   title: {
-    default: 'seatswap — swap into a better seat, for free',
-    template: '%s — seatswap',
+    default: TITLE,
+    template: '%s · seatswap',
   },
   description: DESCRIPTION,
   applicationName: 'seatswap',
   openGraph: {
     type: 'website',
     siteName: 'seatswap',
-    title: 'seatswap — swap into a better seat, for free',
+    title: TITLE,
     description: DESCRIPTION,
   },
   // The image itself comes from app/opengraph-image.tsx (and the per-flight one),
@@ -31,7 +47,7 @@ export const metadata: Metadata = {
   // twitter:image, so the large card has something to show.
   twitter: {
     card: 'summary_large_image',
-    title: 'seatswap — swap into a better seat, for free',
+    title: TITLE,
     description: DESCRIPTION,
   },
   robots: { index: true, follow: true },
@@ -39,33 +55,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-white text-ink antialiased">
-        <div className="mx-auto flex min-h-screen max-w-2xl flex-col px-5">
-          <header className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line py-5">
-            <Link href="/" className="text-lg font-semibold tracking-tight">
-              seatswap
-            </Link>
-            <span className="text-sm text-muted">free seat swaps, same flight</span>
-          </header>
-
-          <main className="flex-1 py-8">{children}</main>
-
-          <footer className="space-y-3 border-t border-line py-6 text-sm text-muted">
-            <p>
-              No payments, no ratings, no phone numbers. Everything about a flight is
-              deleted 24 hours after it departs.
-            </p>
-            <nav aria-label="Legal" className="flex gap-4">
-              <Link href="/privacy" className="underline underline-offset-2 hover:text-ink">
-                Privacy
-              </Link>
-              <Link href="/terms" className="underline underline-offset-2 hover:text-ink">
-                Terms
-              </Link>
-            </nav>
-          </footer>
-        </div>
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
+      <body className="flex min-h-screen flex-col bg-page font-sans text-[15px] leading-[1.55] text-ink antialiased">
+        {children}
       </body>
     </html>
   );

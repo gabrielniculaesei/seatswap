@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
+import { Card, CardFooter, CardHeader, PageShell } from '../../../components/Chrome.tsx';
 import VerificationBadge from '../../../components/VerificationBadge.tsx';
+import { aircraftLabel } from '../../../lib/flights.ts';
+import { formatDay } from '../../../lib/format.ts';
 import { loadProposalByToken, movesFor } from '../../../lib/proposals.ts';
 
 /**
@@ -9,7 +12,9 @@ import { loadProposalByToken, movesFor } from '../../../lib/proposals.ts';
  *
  * This is the product's actual output: a page two or three strangers show each
  * other at the gate, having settled the whole thing before boarding. No account
- * needed to view it — the point is that you can hold up a phone.
+ * needed to view it; the point is that you can hold up a phone. It is narrower
+ * than the other pages for the same reason, and the new seat is the biggest thing
+ * on it, because that is the one thing anybody needs to read.
  *
  * The token is 128 random bits and is not derived from anything (CLAUDE.md §13.6).
  * The page stops existing when purge_flight runs 24 hours after departure, which
@@ -28,6 +33,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+// The header strip and every row share one track definition, or the labels stop
+// lining up with their columns once the grid wraps on a phone.
+const TRACKS = 'grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-x-3.5 gap-y-2';
+
 export default async function AgreementPage({ params }: RouteParams) {
   const { token } = await params;
   const proposal = await loadProposalByToken(token);
@@ -41,58 +50,94 @@ export default async function AgreementPage({ params }: RouteParams) {
     entry.moves.push(move);
     byParty.set(move.party_id, entry);
   }
+  const parties = [...byParty.entries()];
+
+  const aircraft = aircraftLabel(proposal);
+  const details = [
+    formatDay(proposal.departure_date),
+    proposal.origin && proposal.destination ? `${proposal.origin} → ${proposal.destination}` : null,
+    aircraft.estimated ? null : aircraft.label,
+  ].filter(Boolean);
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-1">
-        <p className="text-sm font-medium uppercase tracking-wide text-accent">Agreed swap</p>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {proposal.carrier}
-          {proposal.flight_number} · {proposal.departure_date}
+    <PageShell
+      width="narrow"
+      homeLink={false}
+      tagline={false}
+      nav={<span className="meta-mono text-[10.5px]">No login needed</span>}
+    >
+      <section className="flex flex-col gap-3 pb-[22px] pt-8">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="inline-flex items-center gap-[7px] rounded-md bg-accent px-[11px] py-[5px] font-mono text-[10.5px] font-semibold uppercase tracking-[0.1em] text-white">
+            <span className="h-[5px] w-[5px] rounded-full bg-white" aria-hidden="true" />
+            Agreed
+          </span>
+          <span className="meta-mono text-[10.5px]">
+            {parties.length} parties · {moves.length} seats
+          </span>
+        </div>
+        <h1 className="font-mono text-[clamp(27px,6.4vw,36px)] font-semibold leading-[1.1] tracking-[0.02em]">
+          {proposal.carrier} {proposal.flight_number}
         </h1>
-        <p className="text-muted">
-          Everyone below accepted this swap in advance. Show each other this page
-          when you board.
+        <p className="font-mono text-[13px] uppercase tracking-[0.05em] text-body">{details.join(' · ')}</p>
+        <p className="max-w-[52ch] text-body">
+          Everyone below accepted this swap before boarding. Show each other the page
+          and sit down.
         </p>
-      </header>
+      </section>
 
-      <section className="divide-y divide-line rounded-lg border border-line">
-        {[...byParty.values()].map((party) => (
-          <div key={party.name} className="p-5">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="font-medium">{party.name}</p>
+      <section
+        role="table"
+        aria-label="Who moves where"
+        className="overflow-hidden rounded-card border border-line-strong bg-white shadow-raised"
+      >
+        <div role="row" className={`${TRACKS} border-b border-line bg-well px-[18px] py-2.5`}>
+          <span role="columnheader" className="label-mono font-normal">Who</span>
+          <span role="columnheader" className="label-mono font-normal">Was</span>
+          <span role="columnheader" className="label-mono font-normal">Now sits in</span>
+        </div>
+        {parties.map(([id, party]) => (
+          <div
+            key={id}
+            role="row"
+            className={`${TRACKS} items-center border-b border-soft px-[18px] py-4 last:border-b-0`}
+          >
+            <div role="cell" className="flex flex-col items-start gap-[5px]">
+              <span className="text-base font-semibold">{party.name}</span>
               <VerificationBadge tier={party.tier} variant="compact" />
             </div>
-            <ul className="mt-2 space-y-1">
+            <div role="cell" className="flex flex-col gap-0.5 font-mono text-[13px] text-body">
               {party.moves.map((move) => (
-                <li key={`${move.from_seat}-${move.to_seat}`} className="text-sm">
-                  <span className="text-muted line-through">{move.from_seat}</span>
-                  <span className="mx-2 text-muted">→</span>
-                  <span className="text-lg font-semibold">{move.to_seat}</span>
-                </li>
+                <span key={move.from_seat} className="line-through">{move.from_seat}</span>
               ))}
-            </ul>
+            </div>
+            <div role="cell" className="flex flex-col gap-0.5 font-mono text-[28px] font-semibold leading-[1.15] tracking-[0.02em]">
+              {party.moves.map((move) => (
+                <span key={move.from_seat}>{move.to_seat}</span>
+              ))}
+            </div>
           </div>
         ))}
       </section>
 
-      <section className="space-y-2 rounded-lg border border-line bg-gray-50 p-5 text-sm text-muted">
-        <h2 className="text-base font-medium text-ink">If someone asks</h2>
-        <p>
-          Nobody is doing anybody a favour here. Every person on this page asked for
-          something the others did not want, so all of them end up better off than
-          the seats they were given.
-        </p>
-        <p>
-          There is nothing to do on the airline&rsquo;s website, and nothing to pay.
-          Just sit in your new seat.
-        </p>
-      </section>
-
-      <p className="text-sm text-muted">
-        This page is deleted 24 hours after the flight departs, along with everything
-        else we hold about it.
-      </p>
-    </div>
+      <Card className="mt-4">
+        <CardHeader title="If someone asks" />
+        <div className="flex flex-col gap-[9px] px-4 py-[15px] text-sm text-body">
+          <p>
+            Everyone on this page asked for something the others did not want, so
+            all of them end up better off than the seats they were given. It was
+            settled before anyone boarded.
+          </p>
+          <p>
+            There is nothing to do on the airline&rsquo;s website and nothing to pay.
+            Just sit in the new seat.
+          </p>
+        </div>
+        <CardFooter>
+          This page is deleted 24 hours after the flight departs, along with
+          everything else we hold about it.
+        </CardFooter>
+      </Card>
+    </PageShell>
   );
 }

@@ -10,7 +10,7 @@
  */
 
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, test } from 'node:test';
@@ -113,10 +113,25 @@ describe("the flight page's preview image touches no data", () => {
 });
 
 describe('the legal pages are reachable', () => {
-  test('the footer links to both, from every page', () => {
-    const source = read('layout.tsx');
+  test('the footer links to both', () => {
+    const source = readFileSync(join(APP, '..', 'components', 'Chrome.tsx'), 'utf8');
     assert.ok(source.includes('href="/privacy"'));
     assert.ok(source.includes('href="/terms"'));
+  });
+
+  test('and every page has that footer', () => {
+    // Pages draw their own header and footer through PageShell (the legal pages
+    // through LegalPage, which wraps it), so a page that skips it has no footer.
+    const pages = readdirSync(APP, { recursive: true, encoding: 'utf8' })
+      .filter((path) => /(^|\/)(page|not-found)\.tsx$/.test(path));
+    assert.ok(pages.length >= 6, `found ${pages.length} pages`);
+    for (const path of pages) {
+      const source = read(path);
+      assert.ok(
+        source.includes('<PageShell') || source.includes('<LegalPage'),
+        `${path} renders no footer`,
+      );
+    }
   });
 
   test('and sign-up points at them before anyone agrees to anything', () => {

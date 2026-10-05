@@ -19,9 +19,10 @@ export interface VerificationBadgeProps {
   variant?: 'full' | 'compact';
 }
 
-const TIERS: Record<number, { label: string; title: string }> = {
+const TIERS: Record<number, { label: string; short: string; title: string }> = {
   1: {
     label: 'Boarding pass checked',
+    short: 'Pass checked',
     title:
       'Read from a boarding pass barcode and cross-checked against the flight, the '
       + 'aircraft and the seats already claimed. Boarding passes are not digitally '
@@ -29,6 +30,7 @@ const TIERS: Record<number, { label: string; title: string }> = {
   },
   2: {
     label: 'Booking verified',
+    short: 'Booking verified',
     title: 'Confirmed against a signed booking email from the airline.',
   },
 };
@@ -43,15 +45,15 @@ export default function VerificationBadge({ tier, variant = 'full' }: Verificati
     <span
       title={rung.title}
       className={
-        'inline-flex items-center gap-1 rounded-full border border-accent/30 '
-        + 'bg-accent/5 font-medium text-accent '
-        + (variant === 'compact' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-xs')
+        'inline-flex items-center gap-[5px] rounded-md border border-accent/30 '
+        + 'bg-accent/[.06] font-medium text-accent '
+        + (variant === 'compact' ? 'px-[7px] py-0.5 text-[10.5px]' : 'px-2 py-[3px] text-[11px]')
       }
     >
-      <svg viewBox="0 0 16 16" aria-hidden="true" className="h-3 w-3 fill-current">
+      <svg viewBox="0 0 16 16" aria-hidden="true" className="h-2.5 w-2.5 fill-current">
         <path d="M8 1 2.5 3.3v4.2c0 3.2 2.3 6.2 5.5 7.2 3.2-1 5.5-4 5.5-7.2V3.3L8 1Zm2.6 5.2-3 3.6a.7.7 0 0 1-1 .1L4.9 8.5a.7.7 0 1 1 .9-1l1.2 1 2.5-3a.7.7 0 1 1 1.1.8Z" />
       </svg>
-      {rung.label}
+      {variant === 'compact' ? rung.short : rung.label}
     </span>
   );
 }

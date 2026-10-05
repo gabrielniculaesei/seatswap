@@ -10,7 +10,8 @@
 export const OG_SIZE = { width: 1200, height: 630 };
 
 const INK = '#11181c';
-const MUTED = '#6b7280';
+// Secondary text: #4b5563, the same as the site's `body` token.
+const MUTED = '#4b5563';
 const ACCENT = '#0f766e';
 
 export function OgCard({ eyebrow, headline, detail }: {
@@ -38,22 +39,21 @@ export function OgCard({ eyebrow, headline, detail }: {
         </div>
         <div style={{ fontSize: 44, color: MUTED, marginTop: 24 }}>{detail}</div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', fontSize: 40, color: INK, fontWeight: 600 }}>
-        <SeatMark size={56} />
-        <span style={{ marginLeft: 20 }}>seatswap</span>
+      {/* The wordmark, with its accent full stop, as in the site header. */}
+      <div style={{ display: 'flex', fontSize: 44, color: INK, fontWeight: 600, letterSpacing: '-0.03em' }}>
+        <span>seatswap</span>
+        <span style={{ color: ACCENT }}>.</span>
       </div>
     </div>
   );
 }
 
-/** The same mark as app/icon.svg. */
-export function SeatMark({ size }: { size: number }) {
+/** The same mark as app/icon.svg: the wordmark's full stop, on the accent. */
+export function Mark({ size }: { size: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 32 32">
       <rect width="32" height="32" rx="7" fill={ACCENT} />
-      <rect x="9" y="6" width="5" height="16" rx="2" fill="#ffffff" />
-      <rect x="9" y="18" width="14" height="5" rx="2" fill="#ffffff" />
-      <rect x="17" y="22" width="3" height="5" fill="#ffffff" />
+      <circle cx="16" cy="16" r="6" fill="#ffffff" />
     </svg>
   );
 }
