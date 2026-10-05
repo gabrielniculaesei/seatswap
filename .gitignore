@@ -20,3 +20,7 @@ next-env.d.ts
 .pytest_cache/
 .ruff_cache/
 .DS_Store
+
+# design files, kept locally only
+design_handoff_seatswap_redesign/
+*.zip
