@@ -24,3 +24,6 @@ next-env.d.ts
 # design files, kept locally only
 design_handoff_seatswap_redesign/
 *.zip
+
+# internal design notes, kept locally only
+CLAUDE.md
