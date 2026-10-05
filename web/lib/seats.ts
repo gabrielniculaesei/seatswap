@@ -162,7 +162,7 @@ export async function submitSeats(
     flightId: party.flight_id,
     seats: parsed.seats,
     message:
-      `Got it — ${parsed.seats.join(', ')} on ${designatorOf(party)}. `
+      `Got it: ${parsed.seats.join(', ')} on ${designatorOf(party)}. `
       + 'I will message you if I find a swap where everyone comes out ahead.',
   };
 }

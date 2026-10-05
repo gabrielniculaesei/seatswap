@@ -244,7 +244,7 @@ export async function submitBoardingPasses(
     seats,
     tier: VERIFIED_TIER,
     message:
-      `Verified — ${seats.join(', ')} on ${designatorOf(party)}. `
+      `Verified: ${seats.join(', ')} on ${designatorOf(party)}. `
       + 'I will message you if I find a swap where everyone comes out ahead.',
   };
 }
@@ -266,7 +266,7 @@ function mismatchMessage(passes: ScannedPass[], candidates: CandidateParty[]): s
   const designator = `${first.carrier}${first.flightNumber}`;
   const sameFlight = candidates.find((c) => designatorOf(c) === designator);
   if (sameFlight) {
-    return `That pass is for a different date — you are signed up for ${designator} `
+    return `That pass is for a different date. You are signed up for ${designator} `
       + `on ${sameFlight.departure_date}.`;
   }
 

@@ -78,8 +78,8 @@ export function flightMeta(input: FlightMetaInput): FlightMeta {
     : null;
 
   const title = route
-    ? `${designator} ${route} on ${input.departureDate} — seat swaps`
-    : `${designator} on ${input.departureDate} — seat swaps`;
+    ? `${designator} ${route} on ${input.departureDate}: seat swaps`
+    : `${designator} on ${input.departureDate}: seat swaps`;
 
   const description =
     `Swap into a better seat on ${designator}${route ? `, ${route}` : ''}, departing `
@@ -159,7 +159,7 @@ export function flightJsonLd(input: FlightJsonLdInput): Record<string, unknown> 
     '@context': 'https://schema.org',
     '@type': 'WebPage',
     url: input.url,
-    name: `${designator} on ${input.departureDate} — seat swaps`,
+    name: `${designator} on ${input.departureDate}: seat swaps`,
     about: flight,
   };
 }

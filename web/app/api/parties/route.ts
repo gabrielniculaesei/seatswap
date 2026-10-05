@@ -163,9 +163,9 @@ export async function DELETE(request: Request) {
     await sendMessage(
       other.telegram_user_id,
       other.agreed
-        ? 'The swap you agreed is off — one of the people in it has left the flight. '
+        ? 'The swap you agreed is off: one of the people in it has left the flight. '
           + 'Keep the seat the airline gave you. I am already looking for another swap.'
-        : 'That swap is off — someone in it has left the flight, so you keep the seat '
+        : 'That swap is off. Someone in it has left the flight, so you keep the seat '
           + 'you have. I am already looking for another one.',
     );
   }

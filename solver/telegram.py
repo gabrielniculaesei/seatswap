@@ -149,8 +149,8 @@ def format_proposal(
     return (
         f"<b>{designator}</b> on {departure_date}\n\n"
         f"A better seat is available:\n{moves}\n\n"
-        f"This is {shape}. Everyone involved improves — "
-        f"nobody is giving anything up.\n\n"
+        f"This is {shape}. Everyone involved improves, "
+        f"and nobody gives anything up.\n\n"
         f"If everyone accepts, you will each get a page to show at the gate."
     )
 
@@ -181,7 +181,7 @@ def format_checkin_reminder(
         f"Send me your seat numbers and I will look for a swap"
     )
     text = (
-        f"{opening} — just the seats, like <code>14A</code> or <code>14A, 22F</code>."
+        f"{opening}. Just the seats, like <code>14A</code> or <code>14A, 22F</code>."
     )
     if flight_url:
         text += (

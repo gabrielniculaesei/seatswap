@@ -66,7 +66,7 @@ describe('flightMeta', () => {
     const meta = flightMeta({
       carrier: 'W6', flightNumber: '3234', departureDate: '2026-10-12', parties: 3,
     });
-    assert.equal(meta.title, 'W63234 on 2026-10-12 — seat swaps');
+    assert.equal(meta.title, 'W63234 on 2026-10-12: seat swaps');
     assert.ok(!meta.description.includes(' to '), meta.description);
   });
 

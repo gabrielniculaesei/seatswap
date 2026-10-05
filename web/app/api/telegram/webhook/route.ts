@@ -71,7 +71,7 @@ export async function POST(request: Request) {
 }
 
 const HELP =
-  'Send me your seat numbers when check-in opens — just the seats, like '
+  'Send me your seat numbers when check-in opens. Just the seats, like '
   + '14A or 14A, 22F.\n\n'
   + 'If I find a swap where everyone comes out better off, you will get it here '
   + 'with two buttons.\n\n'
@@ -114,7 +114,7 @@ async function boardingPassHelp(userId: number): Promise<string> {
     .join('\n');
 
   return (
-    'I cannot read boarding passes here on purpose — your barcode should never '
+    'I cannot read boarding passes here, on purpose. Your barcode should never '
     + 'reach our servers, so it is read in your browser instead.\n\n'
     + (links
       ? `Scan it on your flight page and the seats fill in for you:\n${links}\n\n`
@@ -170,7 +170,7 @@ async function announceAgreement(
       'Everyone accepted. Here is the swap:\n\n'
         + `${summary}\n\n`
         + (token ? `Show this page to each other on board:\n${base}/a/${token}\n\n` : '')
-        + 'Nothing else to do — just take your new seat.',
+        + 'Nothing else to do. Just take your new seat.',
     );
   }
 }
@@ -183,7 +183,7 @@ async function tellTheOthers(
     if (party.telegram_user_id === decliner) continue;
     await sendMessage(
       party.telegram_user_id,
-      'That swap is off — someone declined, so you keep the seat you have. '
+      'That swap is off. Someone declined, so you keep the seat you have. '
         + 'I am already looking for another one.',
     );
   }

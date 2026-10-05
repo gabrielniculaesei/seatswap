@@ -59,7 +59,7 @@ export function maxNewFlightsPerDay(
 export function quotaMessage(limit: number): string {
   return (
     `You have added ${limit} new ${limit === 1 ? 'flight' : 'flights'} today, which is `
-    + 'the daily limit — looking up a flight costs us a paid call to our flight data '
+    + 'the daily limit. Looking up a flight costs us a paid call to our flight data '
     + 'provider, so we ration new ones. You can still sign up for any flight that is '
     + 'already on the site. Try again tomorrow, or send us the flight and we will add it.'
   );
