@@ -1,5 +1,5 @@
 /**
- * Rules about the pages that a crawler is invited into (CLAUDE.md §5, §11).
+ * Rules about the pages that a crawler is invited into.
  *
  * These read source rather than behaviour, which is unusual and is the point.
  * The rule they protect has no symptom: if the flight page starts writing again,
@@ -74,7 +74,7 @@ describe('sign-up is where a flight row is born', () => {
 });
 
 describe('agreement pages stay out of the index', () => {
-  test('the page marks itself noindex (CLAUDE.md §13.6)', () => {
+  test('the page marks itself noindex', () => {
     const source = read('a/[token]/page.tsx');
     assert.match(source, /robots:\s*\{\s*index:\s*false/);
   });

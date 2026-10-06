@@ -2,7 +2,7 @@
  * The social preview card, as JSX for `next/og`'s ImageResponse.
  *
  * This is what a flight link turns into when it is pasted into a WhatsApp group,
- * which is the sharing channel the whole product is built around (CLAUDE.md §5).
+ * which is the sharing channel the whole product is built around.
  * It is drawn by Satori, not a browser: inline styles only, and every element
  * with more than one child needs `display: flex`.
  */

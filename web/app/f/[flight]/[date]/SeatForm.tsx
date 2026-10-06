@@ -7,14 +7,14 @@ import { Card, CardFooter, CardHeader } from '../../../../components/Chrome.tsx'
 import VerificationBadge from '../../../../components/VerificationBadge.tsx';
 
 /**
- * Phase two from the web (CLAUDE.md §7.6).
+ * Phase two from the web.
  *
  * The bot is the main path: it reaches you at check-in without you having to
  * remember anything. This is for the person who is already looking at the page,
  * so the page only shows it once check-in is open and there is a seat to send.
  *
  * Typing a seat is tier 0 and always will be: it is the default, it is what most
- * people will do, and nothing about taking part requires more (CLAUDE.md §10).
+ * people will do, and nothing about taking part requires more.
  * BoardingPassForm sits beside it for anyone who would rather scan.
  */
 

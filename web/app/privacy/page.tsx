@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * The privacy policy (CLAUDE.md §13).
+ * The privacy policy.
  *
  * Every claim here is a claim about the code, so it has to move when the code
  * does. The ones most likely to drift: what purge_flight deletes

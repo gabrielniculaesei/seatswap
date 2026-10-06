@@ -2,7 +2,7 @@
  * Migration runner. Applies db/migrations/*.sql in filename order, once each.
  *
  * No ORM, no migration framework: numbered SQL files and a table that records
- * which ones ran (CLAUDE.md §12, §17). Each file runs inside its own transaction,
+ * which ones ran. Each file runs inside its own transaction,
  * so a failure leaves the database on the last good migration.
  *
  *   npm run migrate --prefix web
@@ -20,7 +20,7 @@ const MIGRATIONS_DIR = join(HERE, '..', '..', 'db', 'migrations');
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
-  console.error('DATABASE_URL is not set. Copy .env.example to .env first.');
+  console.error('DATABASE_URL is not set. Put it in .env and load it into the shell first.');
   process.exit(1);
 }
 

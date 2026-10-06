@@ -3,7 +3,7 @@ import type { MetadataRoute } from 'next';
 import { siteUrl } from '../lib/seo.ts';
 
 /**
- * robots.txt (CLAUDE.md §5).
+ * robots.txt.
  *
  * Flight pages are the point of indexing this site at all, so they are allowed.
  * Two areas are not:

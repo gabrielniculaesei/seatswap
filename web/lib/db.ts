@@ -1,7 +1,7 @@
 /**
  * Database connection for the web tier.
  *
- * postgres.js, hand-written SQL, no ORM (CLAUDE.md §12, §17). One pooled client
+ * postgres.js, hand-written SQL, no ORM. One pooled client
  * per process, cached on globalThis so Next.js hot reloading in development does
  * not open a new pool on every edit and exhaust the server's connection limit.
  *
@@ -9,8 +9,8 @@
  * its top level when DATABASE_URL was unset, which meant that importing anything
  * that imported it — however pure the function you actually wanted — required a
  * database. Twice that was worked around by splitting the pure logic into its own
- * file (flight-id.ts, seat-input.ts); CLAUDE.md §0.1 says the third time to fix
- * the cause instead, and verification.ts was the third time. Nothing connects
+ * file (flight-id.ts, seat-input.ts); the rule was to fix the cause
+ * the third time instead, and verification.ts was the third time. Nothing connects
  * until a query is issued, so a unit test can import the module and never touch a
  * socket, while a missing DATABASE_URL still fails loudly the moment a query runs.
  */

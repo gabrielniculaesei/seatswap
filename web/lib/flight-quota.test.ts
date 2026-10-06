@@ -1,5 +1,5 @@
 /**
- * The per-account cap on creating new flights (CLAUDE.md §11).
+ * The per-account cap on creating new flights.
  *
  * Only the pure half lives here — reading the limit and wording the refusal. The
  * counting is in flight-quota.itest.ts, because a cap that is not checked against

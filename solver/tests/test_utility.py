@@ -83,7 +83,7 @@ def test_gain_is_a_difference(b738):
 
 
 def test_the_two_sides_of_the_market_are_orthogonal(b738):
-    """The economic core of the product (CLAUDE.md §1).
+    """The economic core of the product.
 
     Moving a split pair from a good-but-separated pair of seats into a bad-but-
     adjacent one costs them nothing and hands the single traveller a real gain.

@@ -1,4 +1,4 @@
-"""AeroDataBox wrapper (CLAUDE.md §11).
+"""AeroDataBox wrapper.
 
 The one rule that is not negotiable: **one call per flight, never one per user.**
 The result is cached on the `flights` row and every later reader uses that. The
@@ -99,7 +99,7 @@ def _carriers() -> dict:
 def checkin_opens(carrier: str, scheduled_departure_utc: datetime) -> datetime:
     """Departure minus the carrier's check-in window.
 
-    Hardcoded per carrier because no API exposes it (CLAUDE.md §11).
+    Hardcoded per carrier because no API exposes it.
     """
     carriers = _carriers()
     policy = carriers.get(carrier.upper()) or carriers["_default"]
@@ -154,7 +154,7 @@ def estimated_schedule(carrier: str, departure_date: date) -> EstimatedSchedule:
 
     Without it an unverified flight had no lifecycle at all: no check-in reminder,
     no seat form, no scheduled match runs — and no purge_flight, so its personal
-    data was never deleted. "Degrade, do not block" (CLAUDE.md §11) has to cover
+    data was never deleted. "Degrade, do not block" has to cover
     the clock too, not just the seat map.
 
     Each time errs in the direction that is safe for what it drives:

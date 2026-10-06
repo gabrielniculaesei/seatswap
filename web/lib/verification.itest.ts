@@ -1,5 +1,5 @@
 /**
- * Boarding-pass verification against a real database (CLAUDE.md §10, tier 1).
+ * Boarding-pass verification against a real database (tier 1).
  *
  * The interesting half of tier 1 is not the parsing — that is covered in
  * bcbp.test.ts — but the cross-checks, and every one of those needs rows to check

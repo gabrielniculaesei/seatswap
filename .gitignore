@@ -15,6 +15,7 @@ next-env.d.ts
 .env
 .env.local
 .env*.local
+.env.example
 
 # tooling
 .pytest_cache/
@@ -27,3 +28,4 @@ design_handoff_seatswap_redesign/
 
 # internal design notes, kept locally only
 CLAUDE.md
+DECISIONS_TO_MAKE_AND_PLAN.md

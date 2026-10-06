@@ -5,11 +5,11 @@ import { COOKIE_NAME, verify } from '../../../lib/session.ts';
 import { sanitisePasses, submitBoardingPasses } from '../../../lib/verification.ts';
 
 /**
- * Seats read off a boarding pass (CLAUDE.md §10, tier 1).
+ * Seats read off a boarding pass (tier 1).
  *
  * The body is the small set of fields the browser pulled out of the barcode — no
  * passenger name, no PNR, and never the raw payload, which does not leave the
- * page (CLAUDE.md §13.1). That is also why this is a separate route from
+ * page. That is also why this is a separate route from
  * /api/seats rather than a flag on it: the two carry different things, and a
  * route that accepted either would sooner or later be sent the whole barcode.
  */

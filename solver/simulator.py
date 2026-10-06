@@ -1,4 +1,4 @@
-"""Synthetic-flight simulator (CLAUDE.md §15).
+"""Synthetic-flight simulator.
 
 Answers the only question that matters before there are users: at what
 participation rate does this product start working?

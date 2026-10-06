@@ -8,7 +8,7 @@ import {
 } from '../../../../lib/telegram.ts';
 
 /**
- * Telegram Login Widget callback (CLAUDE.md §12).
+ * Telegram Login Widget callback.
  *
  * The widget redirects here with the signed payload in the query string. We check
  * the HMAC with the bot token, mint a session cookie, and bounce back to wherever

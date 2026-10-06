@@ -10,7 +10,7 @@ import { formatDay } from '../../../../lib/format.ts';
  * Drawn from the URL alone, with no database read. The flight page answers at
  * tens of millions of addresses and link unfurlers fetch this for every one that
  * is shared, so it should cost nothing and be cacheable forever; and like the
- * page itself it must never write (CLAUDE.md §5, lib/page-invariants.test.ts).
+ * page itself it must never write (lib/page-invariants.test.ts).
  * The route, which only the database knows, is in the page's title and
  * description instead.
  */

@@ -1,5 +1,5 @@
 /**
- * Enqueueing work for the solver worker (CLAUDE.md §4).
+ * Enqueueing work for the solver worker.
  *
  * The web tier never runs the solver in-request, and never calls AeroDataBox in
  * request either. It writes a row and lets the worker get on with it. This is the
@@ -50,7 +50,7 @@ export async function enqueue(
  *
  * Called once, when the flight first appears — which is what makes "one API call
  * per flight, never one per user" structural rather than a rule someone has to
- * remember (CLAUDE.md §11).
+ * remember.
  */
 export async function requestFlightVerification(flightId: number) {
   return enqueue('verify_flight', { flight_id: flightId });
@@ -61,8 +61,8 @@ export async function requestFlightVerification(flightId: number) {
  *
  * The worker will only actually emit a proposal from an immediate run if every
  * party involved is already at its theoretical best; otherwise it holds the
- * result back and waits for a scheduled run that might find a better chain
- * (CLAUDE.md §14). So this is cheap to call on every submission.
+ * result back and waits for a scheduled run that might find a better chain.
+ * So this is cheap to call on every submission.
  */
 export async function requestImmediateMatchRun(flightId: number) {
   return enqueue('match_run', { flight_id: flightId, trigger: 'immediate' });

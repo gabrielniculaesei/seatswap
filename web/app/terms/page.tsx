@@ -15,8 +15,8 @@ export const metadata: Metadata = {
 /**
  * Terms of use. Short, because the product is: free, no accounts beyond a
  * Telegram login, nothing to buy. The parts that carry weight are the ones that
- * say what we are *not*: an airline, a guarantee, a party to your swap
- * (CLAUDE.md §2.3, §2.4). They get the only card on the page.
+ * say what we are *not*: an airline, a guarantee, a party to your swap.
+ * They get the only card on the page.
  */
 
 const UPDATED = '2026-09-15';

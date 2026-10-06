@@ -1,5 +1,5 @@
 /**
- * Telegram, from the web side (CLAUDE.md §12).
+ * Telegram, from the web side.
  *
  * Two jobs: verifying the Login Widget signature, and sending the occasional
  * immediate confirmation. Match-run notifications come from the worker instead,
@@ -9,7 +9,7 @@
  * not hand us a phone number. Joining a WhatsApp group would expose a stranger's
  * number to other strangers who also know when they are away from home, which is
  * an unacceptable trade for a product whose whole purpose is avoiding an awkward
- * moment (CLAUDE.md §13.3).
+ * moment.
  */
 
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
@@ -96,7 +96,7 @@ export function verifyLogin(
 }
 
 /**
- * Build a display name that is deliberately *not* a full name (CLAUDE.md §13.2).
+ * Build a display name that is deliberately *not* a full name.
  *
  * First name plus the initial of the surname, capped at 40 characters. The
  * surname itself is never stored anywhere, and neither is the raw payload: this

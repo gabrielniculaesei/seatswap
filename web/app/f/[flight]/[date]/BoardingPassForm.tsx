@@ -7,16 +7,16 @@ import { type BoardingPassLeg, parseBoardingPass } from '../../../../lib/bcbp.ts
 import { Card, CardFooter, CardHeader } from '../../../../components/Chrome.tsx';
 
 /**
- * Tier 1: reading the seats off a boarding pass (CLAUDE.md §10).
+ * Tier 1: reading the seats off a boarding pass.
  *
  * Everything here happens in the browser. The image is decoded here, the barcode
  * is parsed here, and what goes to the server is six fields per leg: never the
- * passenger name, never the raw payload (CLAUDE.md §13.1). That is not a detail
+ * passenger name, never the raw payload. That is not a detail
  * of the implementation, it is the reason we can ask for a boarding pass at all.
  *
  * The decoder is the browser's own BarcodeDetector, which reads PDF417 (paper) and
  * Aztec (mobile) with no library at all: the boring solution, and one dependency
- * fewer to ship to every visitor (CLAUDE.md §17). It is missing on Safari and
+ * fewer to ship to every visitor. It is missing on Safari and
  * Firefox, so the paste box below is not a nicety — for those users it is the
  * whole feature, and for everyone it is the escape hatch when a photo will not
  * decode. Either way this screen is optional: typing your seat is tier 0, tier 0

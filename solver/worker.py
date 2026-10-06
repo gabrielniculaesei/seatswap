@@ -1,4 +1,4 @@
-"""The worker process (CLAUDE.md §4).
+"""The worker process.
 
 Polls the `jobs` table, runs one job at a time, commits the result and the job's
 new status in the same transaction. That is the whole design. There is no broker,

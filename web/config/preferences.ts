@@ -1,5 +1,5 @@
 /**
- * Questionnaire -> preference weights (CLAUDE.md §8).
+ * Questionnaire -> preference weights.
  *
  * Never a slider, never free text. Three or four blunt questions that fill in the
  * weights. The answer IDs are stable and are what the UI stores; the wording lives

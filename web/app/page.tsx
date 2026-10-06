@@ -22,8 +22,8 @@ export const metadata: Metadata = {
 
 /**
  * The home page exists to get someone to a flight page. Everything that matters
- * happens there, and the flight page is the thing that gets shared and indexed
- * (CLAUDE.md §5). Search comes first; the argument for it comes after.
+ * happens there, and the flight page is the thing that gets shared and indexed.
+ * Search comes first; the argument for it comes after.
  */
 async function search(formData: FormData) {
   'use server';

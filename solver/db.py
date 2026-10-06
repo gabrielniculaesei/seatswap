@@ -2,7 +2,7 @@
 
 One connection, opened lazily and reopened if it drops. No pool: a worker is a
 single process doing one job at a time, and a pool would be a moving part that
-earns nothing here (CLAUDE.md §17).
+earns nothing here.
 
 Queries are written by hand. There is no ORM and there should not be one.
 """

@@ -3,9 +3,6 @@
 The technical side of [seatswap](../README.md): the matching model, what the
 simulator found, how the system is put together, and how it handles personal data.
 
-Comments in the code sometimes refer to sections of an internal design document,
-for example `CLAUDE.md §14`. That document is not published.
-
 ## Why the trade is free
 
 Airlines split groups up on purpose, because seat selection is a source of
@@ -256,7 +253,7 @@ the user can paste the barcode text instead.
 You need Node.js 24 or newer, Python 3.13, and either Docker or a local Postgres.
 
 ```bash
-cp .env.example .env                 # set at least SESSION_SECRET
+# create .env with at least DATABASE_URL and SESSION_SECRET
 set -a; source .env; set +a          # export the variables to this shell
 
 docker compose up -d                 # Postgres and the worker

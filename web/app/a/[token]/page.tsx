@@ -8,7 +8,7 @@ import { formatDay } from '../../../lib/format.ts';
 import { loadProposalByToken, movesFor } from '../../../lib/proposals.ts';
 
 /**
- * The agreement screen (CLAUDE.md §7.8).
+ * The agreement screen.
  *
  * This is the product's actual output: a page two or three strangers show each
  * other at the gate, having settled the whole thing before boarding. No account
@@ -16,7 +16,7 @@ import { loadProposalByToken, movesFor } from '../../../lib/proposals.ts';
  * than the other pages for the same reason, and the new seat is the biggest thing
  * on it, because that is the one thing anybody needs to read.
  *
- * The token is 128 random bits and is not derived from anything (CLAUDE.md §13.6).
+ * The token is 128 random bits and is not derived from anything.
  * The page stops existing when purge_flight runs 24 hours after departure, which
  * is the expiry: there is no separate timer to get wrong.
  */

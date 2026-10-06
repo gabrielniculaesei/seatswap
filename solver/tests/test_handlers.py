@@ -118,7 +118,7 @@ def test_verify_flight_schedules_the_lifecycle(cursor):
 
 
 def test_verify_flight_degrades_when_the_flight_is_unknown(cursor):
-    """An unknown flight must never block the user (CLAUDE.md §11)."""
+    """An unknown flight must never block the user."""
     flight_id = make_flight(cursor, "XX", "9999", date(2026, 10, 12))
     result = handlers.verify_flight(cursor, job("verify_flight", {"flight_id": flight_id}))
 
@@ -358,7 +358,7 @@ def test_expire_proposals_requeues_itself(cursor):
 def test_expire_proposals_prunes_old_flight_creations(cursor):
     """The backstop for a quiet site: no Telegram id outlives the quota window
     by more than a day, even if nobody creates a flight to trigger the web
-    tier's own pruning (CLAUDE.md §13)."""
+    tier's own pruning."""
     cursor.execute(
         "INSERT INTO flight_creations (telegram_user_id, created_at) VALUES "
         "(111, now() - interval '3 days'), (222, now() - interval '1 hour')"
@@ -374,7 +374,7 @@ def test_expire_proposals_prunes_old_flight_creations(cursor):
 
 # ---------------------------------------------------------------- purge_flight
 def test_purge_flight_removes_every_personal_trace(cursor):
-    """CLAUDE.md §13.4. This is the test that has to keep passing forever."""
+    """This is the test that has to keep passing forever."""
     flight_id = make_flight(cursor, seat_map_key="B738")
     make_party(cursor, flight_id, 111, ["14A", "20C"], name="Anna B.", w_adjacency=200)
     make_party(cursor, flight_id, 222, ["14B"], name="Clara D.",

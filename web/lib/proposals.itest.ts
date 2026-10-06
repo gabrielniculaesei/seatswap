@@ -367,7 +367,7 @@ describe('leaveFlight', { skip }, () => {
     assert.equal(await matchRuns(), 1);
   });
 
-  test('ends an agreed swap too, which respond() cannot (CLAUDE.md §19.2)', async () => {
+  test('ends an agreed swap too, which respond() cannot', async () => {
     const seed = await seedFlight();
     const id = await seedProposal(seed);
     await proposals.respond(id, 111, 'accept');

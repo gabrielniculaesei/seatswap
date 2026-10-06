@@ -1,4 +1,4 @@
-"""Decompose a solution into independent, atomic swap cycles (CLAUDE.md §14).
+"""Decompose a solution into independent, atomic swap cycles.
 
 The optimum is a permutation of the pool, and every permutation decomposes into
 disjoint cycles. Each cycle is self-contained: the seats it releases are exactly

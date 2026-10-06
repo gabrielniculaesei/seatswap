@@ -1,11 +1,11 @@
 """Minimal Telegram Bot API client.
 
 Direct HTTP with the standard library, no wrapper package: the whole surface we
-need is sendMessage plus an inline keyboard, and CLAUDE.md §12 asks for one fewer
-dependency where the choice is close.
+need is sendMessage plus an inline keyboard, and one fewer dependency is
+worth it where the choice is close.
 
 Privacy rules that this module has to enforce, because it is the only place that
-formats text about other people (CLAUDE.md §13):
+formats text about other people:
 
 * only `display_name` ever appears - never a real name, never a passenger name
   parsed out of a boarding pass;
@@ -110,7 +110,7 @@ def send_message(
 
 
 def accept_reject_keyboard(proposal_id: int) -> dict:
-    """The two inline buttons on a proposal (CLAUDE.md §7.7).
+    """The two inline buttons on a proposal.
 
     Callback data is `proposal:<id>:accept|reject`; the webhook in M4 parses it and
     checks that the presser is actually in the proposal.
@@ -161,12 +161,12 @@ def format_checkin_reminder(
     flight_url: str | None = None,
     estimated: bool = False,
 ) -> str:
-    """The message that opens phase two (CLAUDE.md §7.5).
+    """The message that opens phase two.
 
     It offers typing, because typing is the ten-second answer this whole design
     exists to protect. The boarding-pass route is a link rather than "send me a
     photo": a barcode mailed to the bot would be a barcode on our servers, and
-    CLAUDE.md §10 and §13.1 both say it is read in the browser and never sent.
+    the boarding pass is read in the browser and never sent.
 
     `estimated` means we never learned the departure time and are sending this at
     the earliest check-in could open (aerodatabox.estimated_schedule). "Check-in

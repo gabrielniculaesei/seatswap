@@ -10,7 +10,7 @@
  * The most likely race in the system is two people opening the same brand-new
  * flight and signing up in the same second. That is not a hypothetical: a link
  * pasted into a WhatsApp group is precisely how this product expects to spread
- * (CLAUDE.md §5), so simultaneous first arrivals on one flight are the normal
+ *, so simultaneous first arrivals on one flight are the normal
  * case rather than the exotic one.
  *
  * Run with a throwaway database — these TRUNCATE:
@@ -54,7 +54,7 @@ describe('two people opening the same new flight at once', { skip }, () => {
 
     // Exactly one caller may claim to have created it. That flag is what decides
     // who queues the AeroDataBox call, so two winners would mean two calls
-    // against a quota of about 600 a month (CLAUDE.md §11).
+    // against a quota of about 600 a month.
     assert.equal(attempts.filter((a) => a.created).length, 1, 'exactly one winner');
 
     const jobs = await sql<{ type: string }[]>`SELECT type FROM jobs`;
@@ -123,7 +123,7 @@ describe('two people claiming seats at once', { skip }, () => {
   }
 
   test('only one of them gets the seat, and the others are told why', async () => {
-    // The unique index is the anti-Sybil defence (CLAUDE.md §10). Under
+    // The unique index is the anti-Sybil defence. Under
     // concurrency it has to read as a message, not as a crash.
     await seedFlight();
 

@@ -24,7 +24,7 @@ import RegistrationForm from './RegistrationForm.tsx';
 import SeatForm from './SeatForm.tsx';
 
 /**
- * The flight page. Server-rendered on purpose (CLAUDE.md §5): it is the only
+ * The flight page. Server-rendered on purpose: it is the only
  * acquisition channel with the right granularity, because somebody searching for
  * their own flight number is exactly the person this is for. That means real
  * metadata and real content in the HTML, not a client-side fetch.
@@ -32,7 +32,7 @@ import SeatForm from './SeatForm.tsx';
  * It reads and never writes. Any carrier, number and date in range renders, so
  * this page is reachable at tens of millions of addresses; creating a row for
  * each one visited would hand a crawler an unbounded way to spend our
- * AeroDataBox quota (CLAUDE.md §11). The row appears when somebody signs up.
+ * AeroDataBox quota. The row appears when somebody signs up.
  * Until then the page is a real page about a real flight that simply has nobody
  * on it yet, which is exactly what it says.
  */
@@ -350,7 +350,7 @@ export default async function FlightPage({ params, searchParams }: PageProps) {
       {/* Before check-in, or before signing up, the questions come first. Once
           check-in is open and you are in, the seats are the point, so they move
           above preferences you have already answered. Before check-in there is no
-          seat to send or pass to scan, so neither form shows (CLAUDE.md §7). */}
+          seat to send or pass to scan, so neither form shows. */}
       {existing && checkinOpen ? (
         <section className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(290px,1fr))] items-start gap-4">
           <SeatForm

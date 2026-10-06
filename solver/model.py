@@ -1,4 +1,4 @@
-"""CP-SAT model for seat reassignment (CLAUDE.md §14).
+"""CP-SAT model for seat reassignment.
 
 The optimal solution is a permutation of the seats the participating parties
 already occupy. We never assign an empty seat: we do not own it and we cannot

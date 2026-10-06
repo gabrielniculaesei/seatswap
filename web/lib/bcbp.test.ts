@@ -1,5 +1,5 @@
 /**
- * BCBP parsing (CLAUDE.md §10, tier 1).
+ * BCBP parsing (tier 1).
  *
  * The fixtures are built field by field rather than pasted, because the format is
  * fixed-width and a hand-typed literal that is one space out fails for a reason
@@ -92,7 +92,7 @@ describe('parseBoardingPass', () => {
     });
   });
 
-  test('never hands back the passenger name (CLAUDE.md §13.1)', () => {
+  test('never hands back the passenger name', () => {
     const result = parseBoardingPass(boardingPass([leg()], 'DESMARAIS/LUC'));
     assert.ok(result.ok);
     // Not "we did not read it" but "there is nowhere for it to come out".

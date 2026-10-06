@@ -21,8 +21,7 @@ from utility import PreferenceWeights
 PROPOSAL_TTL = timedelta(hours=3)
 
 #: States whose parties take part in a match run. 'matched' is included on purpose:
-#: a party sitting on a pending proposal can still be offered a better one
-#: (CLAUDE.md §14, superseded proposals).
+#: a party sitting on a pending proposal can still be offered a better one.
 ACTIVE_STATES = ("seated", "matched")
 
 
@@ -212,7 +211,7 @@ def store_proposal(
             cycle.total_gain,
             ttl,
             # 128 random bits, hex. Not derived from anything about the flight or
-            # the people in it (CLAUDE.md §13.6).
+            # the people in it.
             secrets.token_hex(16),
         ),
     )
@@ -314,7 +313,7 @@ def prune_flight_creations(cursor: psycopg.Cursor) -> int:
     (web/lib/flight-quota.ts), which keeps it a day deep while the site is busy.
     This is the backstop for when it is not: without it, a quiet week would keep
     the last few Telegram ids indefinitely, and the privacy policy says they go
-    after about a day (CLAUDE.md §13). Two days, not one, so this can never
+    after about a day. Two days, not one, so this can never
     disagree with the 24-hour quota window about a row that still counts.
     """
     cursor.execute(
@@ -327,7 +326,7 @@ def prune_flight_creations(cursor: psycopg.Cursor) -> int:
 def purge_flight(cursor: psycopg.Cursor, flight_id: int) -> dict:
     """Delete every personal trace of a flight, keeping one anonymous row.
 
-    CLAUDE.md §13.4. The aggregate has no party, no member, no telegram id and no
+    The aggregate has no party, no member, no telegram id and no
     seat in it - just how many people took part and how well it went, which is
     what the README's statistics are made of.
     """

@@ -5,7 +5,7 @@ import { candidateParties, submitSeats } from '../../../../lib/seats.ts';
 import { answerCallbackQuery, sendMessage } from '../../../../lib/telegram.ts';
 
 /**
- * Telegram webhook (CLAUDE.md §7.6, §7.7, §12).
+ * Telegram webhook.
  *
  * Two kinds of update matter:
  *   - a text message, which is somebody sending their seats at check-in;
@@ -88,7 +88,7 @@ async function handleMessage(message: NonNullable<Update['message']>) {
     // Somebody sent their boarding pass as a picture, which is the obvious thing
     // to do and exactly what we cannot accept: a barcode sent to the bot is a
     // barcode on our servers, and it is meant to be read in the browser and
-    // thrown away (CLAUDE.md §10, §13.1). Saying nothing would look broken, so
+    // thrown away. Saying nothing would look broken, so
     // send them to the page that can actually do it.
     const looksLikeAPass =
       (message.photo?.length ?? 0) > 0 || message.document !== undefined;

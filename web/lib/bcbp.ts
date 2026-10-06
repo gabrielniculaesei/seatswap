@@ -1,10 +1,10 @@
 /**
- * Reading an IATA Resolution 792 barcoded boarding pass (CLAUDE.md §10, tier 1).
+ * Reading an IATA Resolution 792 barcoded boarding pass (tier 1).
  *
  * Pure string work, no dependencies, no I/O — so it runs in the browser, which is
  * where it is meant to run. The raw barcode never reaches our server: the page
  * decodes it, this parser pulls out the handful of fields we cross-check, and only
- * those fields are posted (CLAUDE.md §13.1).
+ * those fields are posted.
  *
  * Two things this file deliberately does NOT do:
  *
@@ -77,7 +77,7 @@ class Scanner {
   private pos = 0;
   // Written out longhand rather than as a constructor parameter property: Node
   // strips types, it does not compile them, and a parameter property is syntax
-  // that has to be compiled (CLAUDE.md §0.1).
+  // that has to be compiled.
   private readonly text: string;
 
   constructor(text: string) {

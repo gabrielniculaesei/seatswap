@@ -30,7 +30,7 @@ export function formatFlightSlug(carrier: string, flightNumber: string): string 
  * Bounded on both sides on purpose. A date in the past cannot be swapped, and a
  * date years out is somebody walking the URL space — either would otherwise
  * create a junk flight row and spend an AeroDataBox call on it, and that quota is
- * the one genuinely scarce resource here (CLAUDE.md §11).
+ * the one genuinely scarce resource here.
  */
 export function parseDepartureDate(value: string, today: Date = new Date()): string | null {
   const trimmed = value.trim();

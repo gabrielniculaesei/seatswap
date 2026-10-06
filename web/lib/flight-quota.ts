@@ -3,7 +3,7 @@
  *
  * Creating a flight row is the only thing a visitor can do that spends a scarce
  * external resource: it queues that flight's one `verify_flight` job, which is
- * one AeroDataBox call out of roughly 600 a month (CLAUDE.md §11).
+ * one AeroDataBox call out of roughly 600 a month.
  *
  * M6 moved creation off the page render and behind the Telegram login, so a
  * crawler cannot reach it. That raised the price of the attack without bounding
@@ -15,7 +15,7 @@
  *
  *  - **It does not meter joining an existing flight.** That costs nothing and is
  *    the behaviour we want: ten people converging on one flight is the product
- *    working, not abuse (CLAUDE.md §2.2). Only the first arrival on a flight
+ *    working, not abuse. Only the first arrival on a flight
  *    nobody has mentioned before is counted.
  *  - **It does not try to be exact.** Two simultaneous requests from one account
  *    can both pass the check and leave it one over. Being occasionally one over a
@@ -82,7 +82,7 @@ export async function newFlightsCreatedRecently(telegramUserId: number): Promise
  *
  * Pruning only the caller's rows left the one-time creator's row behind for good,
  * since they never come back to trigger their own cleanup: a Telegram id kept
- * indefinitely, which is exactly what CLAUDE.md §13 and the privacy policy say
+ * indefinitely, which is exactly what the privacy policy says
  * does not happen. Pruning here keeps the table about a day deep while flights
  * are being created; the worker's expire_proposals sweep is the backstop for
  * when they are not (solver/repository.py, prune_flight_creations).

@@ -1,4 +1,4 @@
-"""One match run over one flight (CLAUDE.md §14).
+"""One match run over one flight.
 
 This is the entry point the worker will call for a `match_run` job, and it is
 where the two scheduling rules from the spec live:

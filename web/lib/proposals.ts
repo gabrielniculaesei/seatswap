@@ -1,5 +1,5 @@
 /**
- * Responding to a proposal, and settling one when everybody agrees (CLAUDE.md §7.8).
+ * Responding to a proposal, and settling one when everybody agrees.
  *
  * A proposal is atomic: it happens when every party in the cycle accepts, and not
  * before. One decline ends it for everyone, which sounds harsh but is the only
@@ -8,7 +8,7 @@
  *
  * Nothing here is enforceable and that is fine. If a swap falls apart nobody is
  * worse off than they started, because the airline's own allocation is untouched
- * until people physically sit down (CLAUDE.md §2.3, §2.5).
+ * until people physically sit down.
  */
 
 import type postgres from 'postgres';
@@ -42,7 +42,7 @@ export interface Move {
   display_name: string;
   from_seat: string;
   to_seat: string;
-  /** 0 declared, 1 read off a boarding pass (CLAUDE.md §10). */
+  /** 0 declared, 1 read off a boarding pass. */
   verification_tier: number;
 }
 
@@ -231,7 +231,7 @@ export interface LeaveResult {
 
 /**
  * Leave a flight: delete the party and everything hanging off it, now rather
- * than at purge time (CLAUDE.md §13; GDPR Art. 17).
+ * than at purge time (GDPR Art. 17).
  *
  * Not a bare DELETE, because a party can be inside a live swap. Deleting it would
  * cascade its proposal_parties rows away and leave the others holding a cycle

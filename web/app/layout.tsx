@@ -5,7 +5,7 @@ import { siteUrl } from '../lib/seo.ts';
 import './globals.css';
 
 // Downloaded at build time and served from our own origin, so a visitor's
-// browser never talks to Google (CLAUDE.md §13.5).
+// browser never talks to Google.
 const sans = Archivo({
   subsets: ['latin', 'latin-ext'],
   weight: ['400', '500', '600', '700'],

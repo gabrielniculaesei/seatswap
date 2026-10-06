@@ -7,7 +7,7 @@
  * never produce.
  *
  * This file can exist at all because db.ts builds its client lazily — importing
- * verification.ts no longer demands a database (CLAUDE.md §0.1).
+ * verification.ts no longer demands a database.
  */
 
 import assert from 'node:assert/strict';
@@ -59,7 +59,7 @@ describe('sanitisePasses', () => {
     const clean = sanitisePasses([[{ ...LEG, passengerName: 'ROSSI/ANNA', pnr: 'ABC123' }]]);
     assert.ok(clean);
     // Whatever else was posted, only the declared fields survive into the object
-    // we go on to use (CLAUDE.md §13.1).
+    // we go on to use.
     assert.deepEqual(Object.keys(clean[0][0]).sort(), [
       'carrier', 'compartment', 'dayOfYear', 'destination',
       'flightNumber', 'origin', 'seat', 'sequenceNumber',

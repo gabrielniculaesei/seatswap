@@ -1,5 +1,5 @@
 /**
- * Collecting seats at check-in (CLAUDE.md §7, phase two).
+ * Collecting seats at check-in (phase two).
  *
  * This is the ten-second interaction the whole two-phase design exists to
  * protect. The user signed up weeks ago in a calm moment; inside the 24-hour
@@ -146,11 +146,11 @@ export async function submitSeats(
 
   try {
     // Tier 0: typed out, taken on trust. That is the default and it is fine
-    // (CLAUDE.md §10) — no tier is required to take part.
+    // — no tier is required to take part.
     await storeSeats(party, parsed.seats, { verificationTier: 0 });
   } catch (error) {
     // The unique index on (flight_id, current_seat) is our anti-Sybil defence and
-    // also a genuine "somebody mistyped" signal (CLAUDE.md §10).
+    // also a genuine "somebody mistyped" signal.
     const conflict = conflictMessage(error);
     if (conflict) return { ok: false, message: conflict };
     throw error;
@@ -170,8 +170,7 @@ export async function submitSeats(
 export interface StoreSeatsOptions {
   /**
    * Check-in sequence numbers read off boarding passes, positionally aligned with
-   * `seats`. Unique per flight, so they are a scarce fact a forgery has to guess
-   * (CLAUDE.md §10).
+   * `seats`. Unique per flight, so they are a scarce fact a forgery has to guess.
    */
   sequences?: (number | null)[];
   /** 0 when the seats were typed out, 1 when they came off a boarding pass. */

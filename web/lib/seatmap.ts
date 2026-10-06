@@ -61,7 +61,7 @@ function normalise(key: string, raw: RawSeatMap, estimated: boolean): SeatMap {
 /**
  * Resolve an aircraft type / seat map key to a seat map.
  * An unknown key degrades to `_default` with `estimated: true` — the UI must say
- * "estimated layout" in that case (CLAUDE.md §9), it must never block the user.
+ * "estimated layout" in that case, it must never block the user.
  */
 export function loadSeatMap(key: string | null | undefined): SeatMap {
   if (key && Object.prototype.hasOwnProperty.call(RAW, key) && key !== DEFAULT_SEAT_MAP_KEY) {
@@ -161,7 +161,7 @@ export function isExitRow(seat: string, map: SeatMap): boolean {
 
 /**
  * Are these seats one contiguous block in a single row, without an aisle in between?
- * Two seats separated by the aisle are NOT adjacent (CLAUDE.md §9).
+ * Two seats separated by the aisle are NOT adjacent.
  * A single seat is trivially adjacent; an empty set is not.
  */
 export function areAdjacent(seats: string[], map: SeatMap): boolean {
@@ -190,7 +190,7 @@ export function areAdjacent(seats: string[], map: SeatMap): boolean {
 
 /**
  * Every set of `size` contiguous, same-row, aisle-respecting seats drawn from `pool`.
- * These are the candidate adjacency blocks `B` in the CP-SAT model (CLAUDE.md §14).
+ * These are the candidate adjacency blocks `B` in the CP-SAT model.
  * Each block is returned sorted by column order; the list itself is deterministic.
  */
 export function contiguousBlocks(pool: string[], size: number, map: SeatMap): string[][] {

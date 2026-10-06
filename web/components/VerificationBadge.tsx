@@ -1,5 +1,5 @@
 /**
- * The verification badge (CLAUDE.md §10).
+ * The verification badge.
  *
  * Three rungs, none of them required to take part. The wording is deliberately
  * modest, because the standard does not let us claim more: BCBP carries no usable

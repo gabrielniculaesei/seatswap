@@ -1,5 +1,5 @@
 /**
- * The new-flight cap against a real database (CLAUDE.md §11).
+ * The new-flight cap against a real database.
  *
  * The distinction this file exists to pin down is the one the whole design turns
  * on: creating a flight is metered, joining one is not. Get that backwards and
@@ -56,7 +56,7 @@ describe('flightForUser', { skip }, () => {
     await create(ANNA, '1');
 
     // Nine more people arrive on the same flight. This is the product working
-    // (CLAUDE.md §2.2), so it must not be metered at all.
+    //, so it must not be metered at all.
     for (let i = 0; i < 9; i += 1) {
       const joined = await create(CLARA, '1');
       assert.ok(joined.ok);
@@ -143,7 +143,7 @@ describe('flightForUser', { skip }, () => {
 
 describe('recordFlightCreation', { skip }, () => {
   test('prunes rows that have aged out, so this is not a log', async () => {
-    // CLAUDE.md §13: the table holds who and when, and only for as long as the
+    // The table holds who and when, and only for as long as the
     // decision needs it.
     await quota.recordFlightCreation(ANNA);
     await sql`

@@ -1,4 +1,4 @@
-"""Cycle decomposition (CLAUDE.md §14).
+"""Cycle decomposition.
 
 The property that matters: each cycle is closed, so one can be accepted while
 another is rejected without stranding anybody.

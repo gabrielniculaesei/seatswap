@@ -4,7 +4,7 @@ import { sitemapFlights } from '../lib/flights.ts';
 import { absoluteUrl, flightPath } from '../lib/seo.ts';
 
 /**
- * The sitemap (CLAUDE.md §5).
+ * The sitemap.
  *
  * Only flights somebody has actually signed up for — exactly the pages that are
  * allowed to be indexed. Listing every address the router will answer on would
@@ -28,7 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     flights = await sitemapFlights();
   } catch (error) {
     // A sitemap that 500s teaches a crawler the site is broken. Degrade to the
-    // pages we can name without asking anything (CLAUDE.md §11).
+    // pages we can name without asking anything.
     console.error('sitemap: could not list flights', error);
     return STATIC_PAGES;
   }

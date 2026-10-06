@@ -1,5 +1,5 @@
 /**
- * Sessions: a signed, httpOnly cookie. Nothing else (CLAUDE.md §12).
+ * Sessions: a signed, httpOnly cookie. Nothing else.
  *
  * There is no users table and no server-side session store, because there is
  * nothing to keep: a session is a Telegram user id and a suggested display name.

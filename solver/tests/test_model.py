@@ -1,4 +1,4 @@
-"""Solver behaviour and property tests (CLAUDE.md §17).
+"""Solver behaviour and property tests.
 
 No solution may violate individual rationality, no seat may be handed out twice,
 and the seats that come out must be exactly the seats that went in.
@@ -223,7 +223,7 @@ def test_a_family_already_in_an_exit_row_does_not_break_the_flight(b738):
 # ------------------------------------------------------------------ MIN_GAIN
 def test_min_gain_blocks_a_disguised_favour(b738):
     """A move worth less than MIN_GAIN is a favour in disguise, so it is refused
-    even when it would raise the total (CLAUDE.md §14, constraint 7)."""
+    even when it would raise the total (constraint 7)."""
     pair = Party(1, (Member(1, "14A"), Member(2, "20C")), SPLIT_PAIR)
     helper = Party(2, (Member(3, "14B"),), PreferenceWeights(w_window=1))
     strict = SolveConfig(min_gain=20, num_workers=8, random_seed=7)

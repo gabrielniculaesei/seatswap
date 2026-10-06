@@ -10,7 +10,7 @@ import type { Session } from '../../../../lib/session.ts';
 import { Card, CardFooter, CardHeader } from '../../../../components/Chrome.tsx';
 
 /**
- * Phase one of the questionnaire (CLAUDE.md §7, §8).
+ * Phase one of the questionnaire.
  *
  * Three blunt questions, never a slider and never free text. Sliders invite people
  * to express a precision they do not have, and free text cannot be optimised over.
@@ -24,7 +24,7 @@ interface Props {
    * The flight is identified by carrier, number and date rather than by a row id,
    * because signing up is what creates the row. The page itself never writes, and
    * sign-up goes through flightForUser so the per-account daily cap on new
-   * flights applies (CLAUDE.md §5, §11).
+   * flights applies.
    */
   carrier: string;
   flightNumber: string;
@@ -406,8 +406,8 @@ function Choice({
 }
 
 /**
- * The Telegram Login Widget. One tap, and no phone number ever reaches us
- * (CLAUDE.md §13.3). The button and its mark are Telegram's: the script draws
+ * The Telegram Login Widget. One tap, and no phone number ever reaches us.
+ * The button and its mark are Telegram's: the script draws
  * them, and nothing here restyles them.
  */
 function TelegramLogin({

@@ -1,10 +1,10 @@
 /**
- * Tier 1 verification: seats taken off a boarding pass (CLAUDE.md §10).
+ * Tier 1 verification: seats taken off a boarding pass.
  *
  * The barcode itself is parsed in the browser by bcbp.ts and never sent here.
  * What arrives is the handful of fields we cross-check — carrier, flight number,
  * day of the year, route, seat, check-in sequence number. No passenger name, no
- * PNR, no raw payload (CLAUDE.md §13.1).
+ * PNR, no raw payload.
  *
  * Be honest about what this buys. BCBP is not signed, so a field posted to this
  * endpoint is exactly as forgeable as a seat typed into a chat window; nothing
@@ -23,7 +23,7 @@
  * burn real ones, and it cannot know which are already taken.
  *
  * The badge is a nudge, never a gate. A tier-0 party competes on equal terms and
- * the solver only gives the tier a 5% thumb on the scale (CLAUDE.md §10, §14).
+ * the solver only gives the tier a 5% thumb on the scale.
  */
 
 import type { BoardingPassLeg } from './bcbp.ts';
@@ -193,7 +193,7 @@ export async function submitBoardingPasses(
   }
 
   // Only checked once the flight is actually verified: before that our own route
-  // is the guess, not theirs (CLAUDE.md §11 — degrade, never block).
+  // is the guess, not theirs (degrade, never block).
   if (party.origin && party.destination) {
     const wrongRoute = legs.find(
       (leg) => leg.origin !== party.origin || leg.destination !== party.destination,

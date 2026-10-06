@@ -1,4 +1,4 @@
-"""The party utility function (CLAUDE.md §8).
+"""The party utility function.
 
 Python twin of web/lib/utility.ts. They MUST return exactly the same integers for
 the same input: the TS one drives the "what you'd gain" preview in the UI, this one
@@ -99,7 +99,7 @@ def gain(
 def max_theoretical_utility(size: int, w: PreferenceWeights, seat_map: SeatMap) -> int:
     """The best a party could do if it had the run of the whole empty cabin.
 
-    Used by the "immediate run" rule (CLAUDE.md §14): fire a proposal the moment it
+    Used by the "immediate run" rule: fire a proposal the moment it
     appears only if every party in it is already at its theoretical maximum,
     otherwise discard the result and wait for a scheduled run that might find a
     better cycle.

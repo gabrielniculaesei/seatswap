@@ -2,8 +2,8 @@
  * Metadata, canonical URLs and structured data for the pages that get indexed.
  *
  * Flight pages are the only acquisition channel with the right granularity:
- * somebody searching their own flight number is exactly the person this is for
- * (CLAUDE.md §5). That makes SEO a product feature rather than a chore, and it
+ * somebody searching their own flight number is exactly the person this is for.
+ * That makes SEO a product feature rather than a chore, and it
  * makes two things matter more than the usual tag-filling:
  *
  *  1. **Only pages with something on them get indexed.** The flight URL space is

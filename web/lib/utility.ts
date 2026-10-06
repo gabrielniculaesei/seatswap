@@ -1,5 +1,5 @@
 /**
- * The party utility function (CLAUDE.md §8).
+ * The party utility function.
  *
  * This file has a Python twin at solver/utility.py. They MUST return exactly the
  * same integers for the same input: this one drives the "what you'd gain" preview
@@ -102,7 +102,7 @@ export function gain(
 /**
  * The best a party could do if it had the run of the whole empty cabin.
  *
- * Used by the "immediate run" rule (CLAUDE.md §14): fire a proposal the moment it
+ * Used by the "immediate run" rule: fire a proposal the moment it
  * appears only if every party in it is already at its theoretical maximum,
  * otherwise discard the result and wait for a scheduled run that might find a
  * better cycle.

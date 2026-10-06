@@ -1,4 +1,4 @@
-"""Seat geometry, with the edge cases spelled out (CLAUDE.md §17)."""
+"""Seat geometry, with the edge cases spelled out."""
 
 import pytest
 

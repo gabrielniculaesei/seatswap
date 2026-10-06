@@ -1,4 +1,4 @@
-"""The five job handlers (CLAUDE.md §6).
+"""The five job handlers.
 
 Each takes an open cursor and a Job and returns a small dict that the worker logs.
 Each runs inside one transaction owned by the worker: raise and the whole job is
@@ -48,7 +48,7 @@ def _base_url() -> str:
 def verify_flight(cursor, job: Job) -> dict:
     """Fill in route, aircraft and times from AeroDataBox, then schedule the rest.
 
-    One call per flight, ever (CLAUDE.md §11). If the answer is unusable the row
+    One call per flight, ever. If the answer is unusable the row
     stays 'unknown' and the flight still works with an estimated seat map — the
     user must never be blocked by a third party having a bad day.
     """
@@ -111,7 +111,7 @@ def verify_flight(cursor, job: Job) -> dict:
 def checkin_reminder(cursor, job: Job) -> dict:
     """Ask everyone registered on this flight for their seats.
 
-    This message is the hinge of the whole two-phase design (CLAUDE.md §7): the
+    This message is the hinge of the whole two-phase design: the
     user signed up weeks ago in a calm moment, and inside the 24-hour window all
     that is left is ten seconds of typing in answer to a message they expect.
     """
@@ -277,7 +277,7 @@ def expire_proposals(cursor, job: Job) -> dict:
     freed here gets picked up by the next scheduled match run.
 
     It is also the one job guaranteed to keep running, so it carries the other
-    periodic sweep: aged-out flight_creations rows (CLAUDE.md §13).
+    periodic sweep: aged-out flight_creations rows.
     """
     expired = repository.expire_due_proposals(cursor)
     pruned = repository.prune_flight_creations(cursor)
@@ -297,7 +297,7 @@ def _now(cursor):
 
 # ---------------------------------------------------------------- purge_flight
 def purge_flight(cursor, job: Job) -> dict:
-    """Delete every personal trace of a flight (CLAUDE.md §13.4).
+    """Delete every personal trace of a flight.
 
     Runs 24 hours after departure. What survives is one row in flight_stats with
     no person in it. This is not a feature to be tidied up later; it is the reason

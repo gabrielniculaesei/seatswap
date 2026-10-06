@@ -1,5 +1,5 @@
 """The utility function exists twice, in TypeScript and in Python. This proves
-they agree (CLAUDE.md §12).
+they agree.
 
 If they ever drift, the UI shows a user a gain the solver did not optimise for,
 which is the one bug in this project that would be invisible until somebody is

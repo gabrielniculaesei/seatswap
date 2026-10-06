@@ -1,7 +1,7 @@
 /**
  * Flight and party queries for the web tier.
  *
- * The web never calls AeroDataBox in-request (CLAUDE.md §11). A flight nobody has
+ * The web never calls AeroDataBox in-request. A flight nobody has
  * mentioned before is created as `unknown` and a `verify_flight` job is queued;
  * the page renders immediately with an estimated seat map and fills in when the
  * worker gets to it. That keeps a third-party API out of the render path of the
@@ -29,7 +29,7 @@ export type { FlightSlug };
 
 /**
  * Aggregate state of a flight. Deliberately holds no names and no seats: this is
- * what a stranger who has not signed up is allowed to see (CLAUDE.md §19.3).
+ * what a stranger who has not signed up is allowed to see.
  */
 export interface FlightSummary {
   parties: number;
@@ -38,7 +38,7 @@ export interface FlightSummary {
   wantWindow: number;
   wantAisle: number;
   seatsSubmitted: number;
-  /** How many of them read their seats off a boarding pass (CLAUDE.md §10). */
+  /** How many of them read their seats off a boarding pass. */
   verified: number;
 }
 
@@ -79,11 +79,11 @@ export async function findFlight(
  *
  * Rendering a flight page used to create the row. That was fine while nothing
  * linked here, and became a liability the moment the flight pages were made
- * indexable (CLAUDE.md §5, M6): the URL space is every carrier times every flight
+ * indexable: the URL space is every carrier times every flight
  * number times a year of dates, every one of those addresses renders, and each
  * new one would have written a `flights` row and queued a `verify_flight` job. A
  * crawler walking that space would exhaust the AeroDataBox free tier — about 600
- * calls a month, the one genuinely scarce resource here (CLAUDE.md §11) — in an
+ * calls a month, the one genuinely scarce resource here — in an
  * afternoon, and fill the table with flights nobody ever asked about.
  *
  * So the row is created when somebody signs up, which takes a Telegram account.
@@ -129,7 +129,7 @@ export type FlightForUser =
  * The one entry point sign-up should use. It separates the two cases that look
  * identical from the outside and are not: joining a flight that already exists is
  * free and unmetered, while calling a flight into existence spends this account's
- * daily allowance because it spends an AeroDataBox call (CLAUDE.md §11).
+ * daily allowance because it spends an AeroDataBox call.
  */
 export async function flightForUser(
   carrier: string,
@@ -252,7 +252,7 @@ export async function partyFor(
  * Register or update a party, phase one: who you are and what you want.
  *
  * No seat is involved. At sign-up time — typically weeks out — the seat does not
- * exist yet; it arrives when check-in opens and the bot asks for it (CLAUDE.md §7).
+ * exist yet; it arrives when check-in opens and the bot asks for it.
  */
 export async function upsertParty(input: {
   flightId: number;

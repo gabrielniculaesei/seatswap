@@ -1,5 +1,5 @@
 /**
- * The sitemap query, against a real database (CLAUDE.md §5).
+ * The sitemap query, against a real database.
  *
  * The sitemap and the flight pages' own `robots` metadata have to agree about
  * which pages are worth indexing. This file pins down the query half; seo.test.ts
@@ -119,7 +119,7 @@ describe('reading a flight never creates one', { skip }, () => {
   test('a flight nobody signed up for stays absent', async () => {
     // This is what makes the flight page safe to index: it only ever calls
     // findFlight, so a crawler walking the URL space writes nothing and spends
-    // no AeroDataBox quota (CLAUDE.md §11).
+    // no AeroDataBox quota.
     assert.equal(await flights.findFlight('W6', '3234', '2099-10-12'), null);
 
     const [{ n }] = await sql<{ n: string }[]>`SELECT count(*) AS n FROM flights`;

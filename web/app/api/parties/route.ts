@@ -20,7 +20,7 @@ import { COOKIE_NAME, verify } from '../../../lib/session.ts';
 import { sendMessage } from '../../../lib/telegram.ts';
 
 /**
- * Phase-one registration: who you are and what you want (CLAUDE.md §7).
+ * Phase-one registration: who you are and what you want.
  *
  * Validation is strict about the answer *ids* rather than trusting weights from
  * the client. If the browser could post arbitrary weights, anyone could give
@@ -29,7 +29,7 @@ import { sendMessage } from '../../../lib/telegram.ts';
  *
  * This is also where a `flights` row is born. The flight page only reads, so that
  * a crawler walking the flight URL space cannot create rows or spend AeroDataBox
- * calls (CLAUDE.md §11); creation happens here instead, behind a Telegram login,
+ * calls; creation happens here instead, behind a Telegram login,
  * which means a real person asked for it — and metered per account, because a
  * login raises the price of walking that space without bounding it. Joining a
  * flight that already exists is free and unmetered. See lib/flight-quota.ts.
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
   }
 
   // Not a preference but a rule of the air: nobody under 16 in an exit row, and
-  // the solver needs to know (CLAUDE.md §14, constraint 8). Absent means none, so
+  // the solver needs to know (constraint 8). Absent means none, so
   // an older page still posting without it keeps working.
   const children = body.children === undefined ? 0 : Number(body.children);
   if (!Number.isInteger(children) || children < 0) {
@@ -130,11 +130,11 @@ export async function POST(request: Request) {
 
 /**
  * Leave a flight, deleting the sign-up and everything attached to it now rather
- * than 24 hours after departure (CLAUDE.md §13, GDPR Art. 17).
+ * than 24 hours after departure (GDPR Art. 17).
  *
  * Looks the flight up and never creates it: there is nothing to leave on a flight
  * that has no row, and this must not become a second way to spend an AeroDataBox
- * call (CLAUDE.md §11).
+ * call.
  */
 export async function DELETE(request: Request) {
   const session = verify((await cookies()).get(COOKIE_NAME)?.value);

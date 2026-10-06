@@ -5,7 +5,7 @@ import { useState } from 'react';
 /**
  * "Send this page to others on your flight", as a button.
  *
- * Liquidity lives inside one flight (CLAUDE.md §2.2): the single most useful
+ * Liquidity lives inside one flight: the single most useful
  * thing a signed-up traveller can do before check-in is bring in more people from
  * the same aircraft, and the page already told them to without giving them a way
  * to. The phone's own share sheet where there is one (it reaches WhatsApp, which

@@ -116,7 +116,7 @@ def test_at_theoretical_best(b738):
 
 def test_immediate_run_withholds_a_merely_decent_match(b738):
     """Firing the first acceptable swap burns a seat that a later, better chain
-    would have used (CLAUDE.md §14). An immediate run only fires on perfection.
+    would have used. An immediate run only fires on perfection.
 
     Here the single wants a window AND the front AND no middle; the swap it is
     offered improves it but leaves it short of its theoretical best, so the run

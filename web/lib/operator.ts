@@ -3,7 +3,7 @@
  *
  * GDPR requires the privacy policy to name the controller and give a way to
  * reach them (Art. 13(1)(a)). Neither exists yet — the project has no name and
- * no domain (CLAUDE.md §19.1) — so they come from the environment, like
+ * no domain — so they come from the environment, like
  * PUBLIC_BASE_URL, and choosing them is a config change.
  *
  * Unset values render as a visible placeholder rather than as nothing: a policy

@@ -88,7 +88,7 @@ def load_seat_map(key: str | None) -> SeatMap:
     """Resolve an aircraft type / seat map key to a seat map.
 
     An unknown key degrades to `_default` with ``estimated=True`` - the UI must say
-    "estimated layout" in that case, it must never block the user (CLAUDE.md §9).
+    "estimated layout" in that case, it must never block the user.
     """
     raw = _raw_seat_maps()
     if key and key in raw and key != DEFAULT_SEAT_MAP_KEY:
@@ -176,7 +176,7 @@ def is_exit_row(seat: str, seat_map: SeatMap) -> bool:
 def are_adjacent(seats: list[str], seat_map: SeatMap) -> bool:
     """One contiguous block in a single row, without an aisle in between.
 
-    Two seats separated by the aisle are NOT adjacent (CLAUDE.md §9).
+    Two seats separated by the aisle are NOT adjacent.
     A single seat is trivially adjacent; an empty set is not.
     """
     if not seats:
@@ -213,7 +213,7 @@ def are_adjacent(seats: list[str], seat_map: SeatMap) -> bool:
 def contiguous_blocks(pool: list[str], size: int, seat_map: SeatMap) -> list[list[str]]:
     """Every set of `size` contiguous, same-row, aisle-respecting seats drawn from `pool`.
 
-    These are the candidate adjacency blocks `B` in the CP-SAT model (CLAUDE.md §14).
+    These are the candidate adjacency blocks `B` in the CP-SAT model.
     Each block is sorted by column order; the list itself is deterministic.
     """
     if size < 1:

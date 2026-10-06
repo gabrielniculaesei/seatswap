@@ -1,5 +1,5 @@
 /**
- * Canonical URLs, indexability and structured data (CLAUDE.md §5).
+ * Canonical URLs, indexability and structured data.
  *
  * The two rules worth guarding here are the ones with consequences: an empty
  * flight page must never be indexable, and structured data must never be emitted
@@ -35,7 +35,7 @@ describe('siteUrl', () => {
 });
 
 describe('flightPath', () => {
-  test('is the shareable link from CLAUDE.md §5', () => {
+  test('is the shareable link', () => {
     assert.equal(flightPath('W6', '3234', '2026-10-12'), '/f/W6-3234/2026-10-12');
   });
 

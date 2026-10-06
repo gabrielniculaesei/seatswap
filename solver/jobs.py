@@ -1,4 +1,4 @@
-"""The job queue (CLAUDE.md §4).
+"""The job queue.
 
 Postgres is the queue. `FOR UPDATE SKIP LOCKED` lets several workers pull from the
 same table without blocking each other or handing the same job to two of them, and
@@ -174,8 +174,7 @@ def schedule_flight_jobs(
     """Queue the whole lifecycle of a flight once its times are known.
 
     Called by verify_flight. The scheduled match runs are the ones that matter:
-    T-20h, T-12h and T-4h, when the pool is deep enough to be worth solving
-    (CLAUDE.md §14).
+    T-20h, T-12h and T-4h, when the pool is deep enough to be worth solving.
 
     `scheduled_departure_utc` may be an estimate (aerodatabox.estimated_schedule),
     in which case the purge time comes separately in `purge_at`, because the
