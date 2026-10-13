@@ -80,3 +80,25 @@ export function normaliseFlightInput(raw: string): string {
   if (compact.includes('-')) return compact.toUpperCase();
   return compact.replace(/^([A-Za-z0-9]{2})/, '$1-').toUpperCase();
 }
+
+/**
+ * A flight page path as a Telegram deep-link payload, and back.
+ *
+ * The bot's "Log in" button is the way in when the Login Widget's confirmation
+ * never arrives, and it should land people on the flight they came from. A
+ * start parameter may only hold A-Z, a-z, 0-9, _ and -, so
+ * `/f/FR-1234/2026-10-15` travels as `f_FR-1234_2026-10-15`. Anything else
+ * becomes the home page: the payload is typed by whoever opens the link.
+ */
+const FLIGHT_PATH = /^\/f\/([A-Za-z0-9]{2}-[0-9]{1,4}[A-Za-z]?)\/(\d{4}-\d{2}-\d{2})$/;
+const START_PAYLOAD = /^f_([A-Za-z0-9]{2}-[0-9]{1,4}[A-Za-z]?)_(\d{4}-\d{2}-\d{2})$/;
+
+export function startPayloadFor(path: string): string {
+  const match = FLIGHT_PATH.exec(path);
+  return match ? `f_${match[1]}_${match[2]}` : '';
+}
+
+export function pathFromStartPayload(payload: string): string {
+  const match = START_PAYLOAD.exec(payload.trim());
+  return match ? `/f/${match[1]}/${match[2]}` : '/';
+}

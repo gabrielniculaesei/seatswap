@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 
+import { pathFromStartPayload } from '../../../../lib/flight-id.ts';
 import { movesFor, respond } from '../../../../lib/proposals.ts';
 import { candidateParties, submitSeats } from '../../../../lib/seats.ts';
 import { answerCallbackQuery, sendMessage } from '../../../../lib/telegram.ts';
@@ -78,6 +79,24 @@ const HELP =
   + 'You can also scan your boarding pass on your flight page, which fills the '
   + 'seats in for you. Typing them works just as well.';
 
+const LOGIN =
+  'Tap Log in to sign in to the site. Telegram asks you to confirm once, then '
+  + 'takes you back to your flight page.';
+
+/**
+ * A `login_url` button: the way in when the Login Widget's confirmation message
+ * never arrives. Telegram opens the URL with the same signed fields the widget
+ * sends, so /api/auth/telegram verifies it unchanged. `/start f_FR-1234_2026-10-15`
+ * comes from the flight page's link and decides where the button lands.
+ */
+function loginButton(startPayload: string) {
+  const base = (process.env.PUBLIC_BASE_URL ?? '').replace(/\/$/, '');
+  if (!base) return undefined;
+  const next = pathFromStartPayload(startPayload);
+  const url = `${base}/api/auth/telegram?next=${encodeURIComponent(next)}`;
+  return { inline_keyboard: [[{ text: 'Log in', login_url: { url } }]] };
+}
+
 async function handleMessage(message: NonNullable<Update['message']>) {
   const userId = message.from?.id;
   const chatId = message.chat?.id;
@@ -96,7 +115,13 @@ async function handleMessage(message: NonNullable<Update['message']>) {
     return;
   }
 
-  if (text.startsWith('/start') || text.startsWith('/help')) {
+  if (text.startsWith('/start')) {
+    const button = loginButton(text.slice('/start'.length));
+    await sendMessage(chatId, button ? `${LOGIN}\n\n${HELP}` : HELP, button);
+    return;
+  }
+
+  if (text.startsWith('/help')) {
     await sendMessage(chatId, HELP);
     return;
   }

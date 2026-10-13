@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useId, useRef, useState } from 'react';
 
 import type { AdjacencyAnswer, ExtraAnswer, SeatTypeAnswer } from '../../../../config/preferences.ts';
+import { startPayloadFor } from '../../../../lib/flight-id.ts';
 import type { PartyRow } from '../../../../lib/flights.ts';
 import type { Session } from '../../../../lib/session.ts';
 import { Card, CardFooter, CardHeader } from '../../../../components/Chrome.tsx';
@@ -458,7 +459,20 @@ function TelegramLogin({
           <p className="text-[13px] text-danger">
             TELEGRAM_BOT_USERNAME is not configured, so the login button cannot render.
           </p>
-        ) : null}
+        ) : (
+          <p className="text-[13px] text-body">
+            Telegram&apos;s confirmation never arrived?{' '}
+            <a
+              href={`https://t.me/${botUsername}?start=${startPayloadFor(returnTo)}`}
+              className="link"
+              target="_blank"
+              rel="noopener"
+            >
+              Open @{botUsername}
+            </a>
+            , tap Start, then Log in.
+          </p>
+        )}
       </div>
       <CardFooter>
         Then three questions about who is travelling and what you would like. By

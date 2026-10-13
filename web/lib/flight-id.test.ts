@@ -12,6 +12,8 @@ import {
   normaliseFlightInput,
   parseDepartureDate,
   parseFlightSlug,
+  pathFromStartPayload,
+  startPayloadFor,
 } from './flight-id.ts';
 
 const TODAY = new Date('2026-09-14T10:00:00Z');
@@ -117,5 +119,24 @@ describe('departureDateBounds', () => {
   test('works in UTC whatever the time of day', () => {
     const lateEvening = new Date('2026-09-14T23:59:59Z');
     assert.deepEqual(departureDateBounds(lateEvening), departureDateBounds(TODAY));
+  });
+});
+
+describe('start payloads', () => {
+  test('round-trip a flight page path', () => {
+    const path = '/f/FR-1234/2026-10-15';
+    assert.equal(startPayloadFor(path), 'f_FR-1234_2026-10-15');
+    assert.equal(pathFromStartPayload(startPayloadFor(path)), path);
+  });
+
+  test('fit the characters and length Telegram allows', () => {
+    assert.match(startPayloadFor('/f/W6-3234A/2026-10-12'), /^[A-Za-z0-9_-]{1,64}$/);
+  });
+
+  test('anything that is not a flight page goes home', () => {
+    assert.equal(startPayloadFor('/terms'), '');
+    assert.equal(pathFromStartPayload(''), '/');
+    assert.equal(pathFromStartPayload('f_FR-1234_2026-10-15/../x'), '/');
+    assert.equal(pathFromStartPayload('evil.com'), '/');
   });
 });

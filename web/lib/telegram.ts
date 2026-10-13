@@ -117,7 +117,11 @@ export function displayNameFrom(
 }
 
 /** Send a message from the web tier. Used for immediate confirmations only. */
-export async function sendMessage(chatId: number, text: string): Promise<boolean> {
+export async function sendMessage(
+  chatId: number,
+  text: string,
+  replyMarkup?: object,
+): Promise<boolean> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) return false;
 
@@ -125,7 +129,12 @@ export async function sendMessage(chatId: number, text: string): Promise<boolean
     const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML' }),
+      body: JSON.stringify({
+        chat_id: chatId,
+        text,
+        parse_mode: 'HTML',
+        ...(replyMarkup ? { reply_markup: replyMarkup } : {}),
+      }),
     });
     return response.ok;
   } catch {
