@@ -8,6 +8,15 @@ const color = (name: string) => `rgb(var(--c-${name}) / <alpha-value>)`;
 
 export default {
   content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
+  // `dark:` matches the same rule as the colour tokens in globals.css: the
+  // system setting, unless the header's toggle set data-theme on <html>.
+  darkMode: [
+    'variant',
+    [
+      "@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) & }",
+      ":root[data-theme='dark'] &",
+    ],
+  ],
   theme: {
     extend: {
       colors: {

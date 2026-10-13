@@ -182,6 +182,12 @@ export default function PrivacyPage() {
           banner: we have no other cookies to ask about.
         </p>
         <p>
+          If you switch between light and dark mode with the button at the top of the
+          page, your browser remembers that choice in its own storage, under the name{' '}
+          <code className="rounded bg-soft px-[5px] py-px font-mono text-[13px] text-ink">theme</code>.
+          It is never sent to us, and choosing the same mode as your device forgets it.
+        </p>
+        <p>
           The Telegram sign-in button is loaded from telegram.org, so Telegram sees
           that you visited a flight page, and may set its own cookies, under{' '}
           <a href="https://telegram.org/privacy" className="link" rel="noopener noreferrer">

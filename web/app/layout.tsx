@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Archivo, IBM_Plex_Mono } from 'next/font/google';
 
 import { siteUrl } from '../lib/seo.ts';
+import { THEME_SCRIPT } from '../lib/theme.ts';
 import './globals.css';
 
 // Downloaded at build time and served from our own origin, so a visitor's
@@ -60,7 +61,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
+    // suppressHydrationWarning: THEME_SCRIPT may set data-theme on <html>
+    // before React hydrates, which is the point of running it there.
+    <html lang="en" className={`${sans.variable} ${mono.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="flex min-h-screen flex-col bg-page font-sans text-[15px] leading-[1.55] text-ink antialiased">
         {children}
       </body>

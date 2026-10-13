@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+import ThemeToggle from './ThemeToggle.tsx';
+
 /**
  * The pieces every page is built from: the header and footer bars, and the card
  * anatomy used for everything that sits on the page background (a header strip,
@@ -63,7 +65,10 @@ export function PageShell({
           ) : (
             <Wordmark />
           )}
-          {nav ? <nav aria-label="Site" className="flex items-center gap-5">{nav}</nav> : null}
+          <div className="flex items-center gap-5">
+            {nav ? <nav aria-label="Site" className="flex items-center gap-5">{nav}</nav> : null}
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 

@@ -28,8 +28,12 @@
   --c-on-accent: 255 255 255;   /* #ffffff */
 }
 
+/* Dark mode: the system setting, unless the header's toggle chose otherwise
+   (components/ThemeToggle.tsx sets data-theme on <html>). The values are the
+   same in both blocks; CSS cannot share one block between a media query and a
+   plain selector, so change them together. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     color-scheme: dark;
     --c-ink: 230 234 236;         /* #e6eaec, 14.2:1 on surface */
     --c-body: 169 177 184;        /* #a9b1b8, 8.6:1 on page, 7.9:1 on surface */
@@ -53,6 +57,29 @@
     --c-accent-dark: 92 207 193;  /* #5ccfc1, the hover, so lighter here */
     --c-on-accent: 6 32 29;       /* #06201d */
   }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --c-ink: 230 234 236;
+  --c-body: 169 177 184;
+  --c-muted: 143 151 159;
+  --c-page: 15 19 21;
+  --c-surface: 23 28 31;
+  --c-well: 19 24 27;
+  --c-line: 42 49 54;
+  --c-line-strong: 52 60 66;
+  --c-soft: 34 41 45;
+  --c-field: 107 116 124;
+  --c-slot: 74 82 88;
+  --c-track: 32 38 42;
+  --c-seat-empty: 38 45 50;
+  --c-hover: 29 35 39;
+  --c-selected: 27 42 42;
+  --c-danger: 242 134 125;
+  --c-accent: 47 184 168;
+  --c-accent-dark: 92 207 193;
+  --c-on-accent: 6 32 29;
 }
 
 body {
@@ -82,13 +109,18 @@ body {
     background-color: color-mix(in srgb, var(--party) 13%, transparent);
   }
   @media (prefers-color-scheme: dark) {
-    .party-text,
-    .seat-dim {
+    :root:not([data-theme='light']) :is(.party-text, .seat-dim) {
       color: color-mix(in srgb, var(--party) 55%, white);
     }
-    .seat-dim {
+    :root:not([data-theme='light']) .seat-dim {
       background-color: color-mix(in srgb, var(--party) 30%, transparent);
     }
+  }
+  :root[data-theme='dark'] :is(.party-text, .seat-dim) {
+    color: color-mix(in srgb, var(--party) 55%, white);
+  }
+  :root[data-theme='dark'] .seat-dim {
+    background-color: color-mix(in srgb, var(--party) 30%, transparent);
   }
 
   .link {
