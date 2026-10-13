@@ -445,8 +445,8 @@ function TelegramLogin({
       <CardHeader title="Sign up for this flight" meta="Step 01" />
       <div className="flex flex-col gap-3 p-4">
         <p className="text-sm text-body">
-          One tap with Telegram and you are in. That is the whole sign-in, and your
-          number stays where it already is.
+          One tap with Telegram and you are in. If Telegram asks for your number to
+          confirm it is you, that goes to Telegram, never to us.
         </p>
         {failed ? (
           <p role="alert" className="text-[13px] text-danger">

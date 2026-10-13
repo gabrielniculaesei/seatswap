@@ -223,8 +223,10 @@ These rules were part of the design from the start.
   after departure. Only an anonymous summary row is kept.
 - **No third-party trackers or analytics.** Fonts are served from the site's own
   domain.
-- **No personal data in URLs.** Agreement links use a random 128-bit token and
-  expire.
+- **No personal data in links.** Agreement links use a random 128-bit token and
+  expire. The one exception is signing in: Telegram puts your ID and name in the
+  address it opens. The server keeps the ID and a first name plus initial, and
+  discards the rest.
 
 ## Boarding pass verification
 

@@ -22,7 +22,7 @@ export const metadata: Metadata = {
  * boarding pass fields reach the server (lib/verification.ts).
  */
 
-const UPDATED = '2026-09-15';
+const UPDATED = '2026-10-13';
 
 // Rendered per request so the operator's name and address, and the canonical
 // URL, come from the running environment rather than the build's (see robots.ts).
@@ -64,7 +64,7 @@ const STORED = [
 ];
 
 const SHORT_VERSION = [
-  'We never have your phone number, your email address or your full name.',
+  'We never see your phone number or your email address, and we never store your full name.',
   'Everything about you on a flight is deleted automatically 24 hours after that flight departs, or straight away if you leave the flight.',
   'Your boarding pass barcode is read in your browser and never sent to us.',
   'No advertising, no analytics, no trackers, and nothing is ever sold.',
@@ -151,8 +151,17 @@ export default function PrivacyPage() {
 
       <LegalSection id="s03" n={3} title="What we never collect">
         <p>
-          Your phone number, your email address, your surname, your booking reference,
-          any payment details, your location, or your browsing behaviour.
+          Your phone number, your email address, your booking reference, any payment
+          details, your location, or your browsing behaviour.
+        </p>
+        <p>
+          <Lead>Signing in.</Lead> If Telegram asks for your phone number to confirm it
+          is you, that stays between you and Telegram. What Telegram sends us, in the
+          address of the page it opens, is your Telegram user ID, first name, surname,
+          username and a link to your profile photo. We keep the ID and a suggested
+          name, your first name and the initial of your surname, and discard the rest
+          straight away. Like any request, that address can sit for a short time in
+          our hosting provider&rsquo;s logs (see section 5).
         </p>
         <p>
           <Lead>Boarding passes.</Lead> If you scan one, the barcode is decoded on your
