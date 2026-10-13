@@ -78,7 +78,7 @@ export default function TermsPage() {
       </LegalSection>
 
       <LegalSection id="t02" n={2} title="What we are not">
-        <ul className="divide-y divide-soft overflow-hidden rounded-card border border-line-strong bg-white">
+        <ul className="divide-y divide-soft overflow-hidden rounded-card border border-line-strong bg-surface">
           {NOT.map((item) => (
             <li key={item.lead} className="flex flex-col gap-1 px-[18px] py-[15px]">
               <p className="font-semibold text-ink">{item.lead}</p>

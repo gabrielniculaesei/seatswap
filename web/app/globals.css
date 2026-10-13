@@ -2,8 +2,57 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Colour tokens, as RGB channels so Tailwind's opacity modifiers work
+   (`bg-accent/[.08]`). Dark mode follows the system setting. Every text pair
+   was checked against WCAG AA in both themes: keep it that way when adding one. */
 :root {
   color-scheme: light;
+  --c-ink: 17 24 28;            /* #11181c */
+  --c-body: 75 85 99;           /* #4b5563 */
+  --c-muted: 107 114 128;       /* #6b7280 */
+  --c-page: 247 248 248;        /* #f7f8f8 */
+  --c-surface: 255 255 255;     /* #ffffff */
+  --c-well: 251 252 252;        /* #fbfcfc */
+  --c-line: 229 231 235;        /* #e5e7eb */
+  --c-line-strong: 217 220 222; /* #d9dcde */
+  --c-soft: 238 240 241;        /* #eef0f1 */
+  --c-field: 134 140 150;       /* #868c96 */
+  --c-slot: 185 191 197;        /* #b9bfc5 */
+  --c-track: 241 243 243;       /* #f1f3f3 */
+  --c-seat-empty: 233 235 236;  /* #e9ebec */
+  --c-hover: 247 249 249;       /* #f7f9f9 */
+  --c-selected: 242 246 246;    /* #f2f6f6 */
+  --c-danger: 179 38 30;        /* #b3261e */
+  --c-accent: 15 118 110;       /* #0f766e */
+  --c-accent-dark: 17 94 89;    /* #115e59 */
+  --c-on-accent: 255 255 255;   /* #ffffff */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --c-ink: 230 234 236;         /* #e6eaec, 14.2:1 on surface */
+    --c-body: 169 177 184;        /* #a9b1b8, 8.6:1 on page, 7.9:1 on surface */
+    --c-muted: 143 151 159;       /* #8f979f, 5.8:1 on surface */
+    --c-page: 15 19 21;           /* #0f1315 */
+    --c-surface: 23 28 31;        /* #171c1f */
+    --c-well: 19 24 27;           /* #13181b */
+    --c-line: 42 49 54;           /* #2a3136 */
+    --c-line-strong: 52 60 66;    /* #343c42 */
+    --c-soft: 34 41 45;           /* #22292d */
+    --c-field: 107 116 124;       /* #6b747c, 3.6:1 on surface */
+    --c-slot: 74 82 88;           /* #4a5258 */
+    --c-track: 32 38 42;          /* #20262a */
+    --c-seat-empty: 38 45 50;     /* #262d32 */
+    --c-hover: 29 35 39;          /* #1d2327 */
+    --c-selected: 27 42 42;       /* #1b2a2a */
+    --c-danger: 242 134 125;      /* #f2867d, 6.9:1 on surface */
+    /* The light accent is too dark to read on a dark page, so dark mode uses a
+       lighter teal, with near-black text on it instead of white. */
+    --c-accent: 47 184 168;       /* #2fb8a8, 7.0:1 on surface, 6.9:1 under on-accent */
+    --c-accent-dark: 92 207 193;  /* #5ccfc1, the hover, so lighter here */
+    --c-on-accent: 6 32 29;       /* #06201d */
+  }
 }
 
 body {
@@ -16,12 +65,32 @@ body {
      set `outline-none` and rely on a 1px border colour change, which is easy to
      miss and invisible on the choice buttons. */
   :focus-visible {
-    outline: 2px solid theme('colors.accent.DEFAULT');
+    outline: 2px solid rgb(var(--c-accent));
     outline-offset: 2px;
   }
 }
 
 @layer components {
+  /* Text or a dimmed seat in one of the swap example's party colours, set as
+     `--party`. Those hues are dark enough for white text on them, which also
+     makes them too dark to read on a dark page, so dark mode lifts them. */
+  .party-text {
+    color: var(--party);
+  }
+  .seat-dim {
+    color: var(--party);
+    background-color: color-mix(in srgb, var(--party) 13%, transparent);
+  }
+  @media (prefers-color-scheme: dark) {
+    .party-text,
+    .seat-dim {
+      color: color-mix(in srgb, var(--party) 55%, white);
+    }
+    .seat-dim {
+      background-color: color-mix(in srgb, var(--party) 30%, transparent);
+    }
+  }
+
   .link {
     @apply text-accent underline decoration-1 underline-offset-2 hover:text-accent-dark;
   }
@@ -41,21 +110,21 @@ body {
   /* Flight number and seat inputs. 19px also keeps iOS Safari from zooming in,
      which it does on anything under 16px. */
   .input-mono {
-    @apply w-full rounded-lg border border-field bg-white px-[13px] py-[11px] font-mono
+    @apply w-full rounded-lg border border-field bg-surface px-[13px] py-[11px] font-mono
            text-[19px] font-medium tracking-[0.09em] text-ink
            focus:border-accent focus:shadow-field;
   }
   .input-text {
-    @apply w-full rounded-lg border border-field bg-white px-[13px] py-[10px] text-base
+    @apply w-full rounded-lg border border-field bg-surface px-[13px] py-[10px] text-base
            text-ink focus:border-accent focus:shadow-field;
   }
 
   .btn-primary {
-    @apply rounded-lg bg-accent px-4 py-3 text-[15px] font-semibold text-white
+    @apply rounded-lg bg-accent px-4 py-3 text-[15px] font-semibold text-on-accent
            transition-colors hover:bg-accent-dark disabled:opacity-50;
   }
   .btn-secondary {
-    @apply rounded-lg border border-field bg-white px-4 py-[10px] text-sm font-semibold
+    @apply rounded-lg border border-field bg-surface px-4 py-[10px] text-sm font-semibold
            text-ink transition-colors hover:border-accent disabled:opacity-50;
   }
 }

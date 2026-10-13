@@ -175,7 +175,7 @@ export default function BoardingPassForm({ size, designator }: Props) {
                 browser's "No file chosen" text does not sit in the design. */}
             <label
               className={
-                'cursor-pointer rounded-[7px] border border-accent bg-white px-[13px] py-2 text-[13px] '
+                'cursor-pointer rounded-[7px] border border-accent bg-surface px-[13px] py-2 text-[13px] '
                 + 'font-semibold text-accent hover:bg-accent/[.06] focus-within:outline '
                 + 'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent'
               }

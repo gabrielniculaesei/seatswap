@@ -66,13 +66,14 @@ export default function SwapChainDemo({ autoPlay = true }: { autoPlay?: boolean 
       <div
         key={code}
         title={`${code}, ${party.name}`}
-        className={base}
-        style={{
-          // Dimmed: the same hue at low alpha, so one party can be traced
-          // through the chain while the others stay recognisable.
-          background: dim ? `${party.color}22` : party.color,
-          color: dim ? party.color : '#fff',
-        }}
+        // Dimmed: the same hue at low alpha, so one party can be traced through
+        // the chain while the others stay recognisable (.seat-dim, globals.css).
+        className={dim ? `${base} seat-dim` : base}
+        style={
+          dim
+            ? ({ '--party': party.color } as React.CSSProperties)
+            : { background: party.color, color: '#fff' }
+        }
       >
         {party.initial}
       </div>
@@ -80,7 +81,7 @@ export default function SwapChainDemo({ autoPlay = true }: { autoPlay?: boolean 
   }
 
   return (
-    <div className="overflow-hidden rounded-card border border-line bg-white">
+    <div className="overflow-hidden rounded-card border border-line bg-surface">
       <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-line px-4 py-[11px]">
         <p className="label-mono font-normal">Cabin · {POOL_SIZE} seats in the pool</p>
         <div role="group" aria-label="Seating shown" className="flex gap-0.5 rounded-[7px] bg-track p-0.5">
@@ -148,9 +149,9 @@ export default function SwapChainDemo({ autoPlay = true }: { autoPlay?: boolean 
               setAfter(true);
             }}
             className={
-              `${TABLE} w-full items-center gap-y-1.5 border-b border-[#f2f4f4] px-4 py-3 text-left `
-              + 'transition-colors hover:bg-[#f7f9f9] '
-              + (focused ? 'bg-[#f2f6f6]' : 'bg-white')
+              `${TABLE} w-full items-center gap-y-1.5 border-b border-soft px-4 py-3 text-left `
+              + 'transition-colors hover:bg-hover '
+              + (focused ? 'bg-selected' : 'bg-surface')
             }
           >
             <span className="flex min-w-0 items-center gap-2">
@@ -191,7 +192,7 @@ function Segment({ on, onClick, children }: { on: boolean; onClick: () => void; 
       onClick={onClick}
       className={
         'rounded-[5px] px-[11px] py-[5px] text-xs font-medium transition-[background-color,color,box-shadow] '
-        + (on ? 'bg-white text-ink shadow-seg' : 'bg-transparent text-body')
+        + (on ? 'bg-surface text-ink shadow-seg' : 'bg-transparent text-body')
       }
     >
       {children}

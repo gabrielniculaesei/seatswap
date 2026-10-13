@@ -68,8 +68,8 @@ export default async function AgreementPage({ params }: RouteParams) {
     >
       <section className="flex flex-col gap-3 pb-[22px] pt-8">
         <div className="flex flex-wrap items-center gap-2.5">
-          <span className="inline-flex items-center gap-[7px] rounded-md bg-accent px-[11px] py-[5px] font-mono text-[10.5px] font-semibold uppercase tracking-[0.1em] text-white">
-            <span className="h-[5px] w-[5px] rounded-full bg-white" aria-hidden="true" />
+          <span className="inline-flex items-center gap-[7px] rounded-md bg-accent px-[11px] py-[5px] font-mono text-[10.5px] font-semibold uppercase tracking-[0.1em] text-on-accent">
+            <span className="h-[5px] w-[5px] rounded-full bg-on-accent" aria-hidden="true" />
             Agreed
           </span>
           <span className="meta-mono text-[10.5px]">
@@ -89,7 +89,7 @@ export default async function AgreementPage({ params }: RouteParams) {
       <section
         role="table"
         aria-label="Who moves where"
-        className="overflow-hidden rounded-card border border-line-strong bg-white shadow-raised"
+        className="overflow-hidden rounded-card border border-line-strong bg-surface shadow-raised"
       >
         <div role="row" className={`${TRACKS} border-b border-line bg-well px-[18px] py-2.5`}>
           <span role="columnheader" className="label-mono font-normal">Who</span>

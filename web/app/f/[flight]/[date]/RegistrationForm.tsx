@@ -316,7 +316,7 @@ export default function RegistrationForm(props: Props) {
   // the page's attention on what happens next.
   if (props.existing) {
     return (
-      <details className="group overflow-hidden rounded-card border border-line bg-white">
+      <details className="group overflow-hidden rounded-card border border-line bg-surface">
         <summary
           className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-2 px-4 py-[13px]
                      group-open:border-b group-open:border-line [&::-webkit-details-marker]:hidden"
@@ -397,7 +397,7 @@ function Choice({
         'rounded-[7px] border text-[13.5px] transition-colors '
         + (selected
           ? 'border-accent bg-accent/[.08] font-semibold text-accent '
-          : 'border-field bg-white text-ink hover:border-ink ')
+          : 'border-field bg-surface text-ink hover:border-ink ')
         + className
       }
     >

@@ -96,7 +96,7 @@ export default function PrivacyPage() {
       toc={TOC}
       other={{ href: '/terms', label: 'Terms' }}
     >
-      <section className="overflow-hidden rounded-card border border-line-strong bg-white">
+      <section className="overflow-hidden rounded-card border border-line-strong bg-surface">
         <div className="border-b border-line px-[18px] py-[13px]">
           <h2 className="text-[14.5px] font-semibold text-ink">The short version</h2>
         </div>
@@ -122,7 +122,7 @@ export default function PrivacyPage() {
         {/* A grid that wraps rather than a table: three columns of prose do not
             fit a phone, and a table that scrolls sideways is the worst way to
             read a privacy policy. */}
-        <div role="table" aria-label="What we store" className="overflow-hidden rounded-card border border-line bg-white">
+        <div role="table" aria-label="What we store" className="overflow-hidden rounded-card border border-line bg-surface">
           <div role="row" className={`${TRACKS} border-b border-line bg-well px-4 py-[9px]`}>
             <span role="columnheader" className="label-mono font-normal">What</span>
             <span role="columnheader" className="label-mono font-normal">Why</span>

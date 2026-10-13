@@ -172,7 +172,7 @@ export default async function FlightPage({ params, searchParams }: PageProps) {
   });
 
   const phase = checkinOpen
-    ? { label: 'Check-in open', className: 'border-accent bg-accent text-white' }
+    ? { label: 'Check-in open', className: 'border-accent bg-accent text-on-accent' }
     : existing
       ? { label: 'Signed up', className: 'border-accent/30 bg-accent/[.08] text-accent' }
       : summary.parties === 0

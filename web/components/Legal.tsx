@@ -51,7 +51,7 @@ export function LegalPage({
 
         <nav
           aria-label="On this page"
-          className="min-w-[190px] flex-[0_1_210px] overflow-hidden rounded-card border border-line bg-white"
+          className="min-w-[190px] flex-[0_1_210px] overflow-hidden rounded-card border border-line bg-surface"
         >
           <div className="border-b border-line bg-well px-3.5 py-[11px]">
             <span className="label-mono font-normal">On this page</span>
@@ -61,7 +61,7 @@ export function LegalPage({
               <li key={entry.id}>
                 <a
                   href={`#${entry.id}`}
-                  className="flex gap-[9px] rounded-md px-[9px] py-[7px] text-[13px] text-body hover:bg-[#f4f5f5] hover:text-ink"
+                  className="flex gap-[9px] rounded-md px-[9px] py-[7px] text-[13px] text-body hover:bg-hover hover:text-ink"
                 >
                   <span className="font-mono text-[11px] text-muted">{number(index)}</span>
                   <span>{entry.label}</span>

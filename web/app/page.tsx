@@ -97,7 +97,7 @@ export default async function HomePage({
       </section>
 
       <section className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] items-start gap-4">
-        <form action={search} className="overflow-hidden rounded-card border border-line bg-white">
+        <form action={search} className="overflow-hidden rounded-card border border-line bg-surface">
           <CardHeader title="Find your flight" meta="Step 01" />
           <div className="flex flex-col gap-3.5 p-4">
             <div className="flex flex-col gap-1.5">
@@ -173,7 +173,7 @@ export default async function HomePage({
         <SectionHeading eyebrow="Process" title="How it works" />
         <ol className="grid grid-cols-[repeat(auto-fit,minmax(190px,1fr))] gap-3">
           {STEPS.map(([label, text]) => (
-            <li key={label} className="flex flex-col gap-2 rounded-card border border-line bg-white px-[15px] py-3.5">
+            <li key={label} className="flex flex-col gap-2 rounded-card border border-line bg-surface px-[15px] py-3.5">
               <span className="font-mono text-[10.5px] font-semibold tracking-[0.07em] text-accent">{label}</span>
               <span className="text-[13.5px] leading-normal text-body">{text}</span>
             </li>

@@ -1,44 +1,59 @@
 import type { Config } from 'tailwindcss';
 
+// The values live in app/globals.css, once for light and once for dark, so a
+// class like `bg-surface` or `text-accent/30` follows the visitor's system
+// setting without a `dark:` variant on every element. The contrast figures
+// below are for light; the dark ones are noted next to their values.
+const color = (name: string) => `rgb(var(--c-${name}) / <alpha-value>)`;
+
 export default {
   content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        ink: '#11181c',
+        ink: color('ink'),
         // Secondary text inside white cards only: 4.83:1 on white, but 4.07:1 on
         // the page background, which fails AA. On `page`, use `body`.
-        muted: '#6b7280',
+        muted: color('muted'),
         // Body copy, and any secondary text that sits on the page background
         // (6.92:1 on it).
-        body: '#4b5563',
-        // The page behind the white cards.
-        page: '#f7f8f8',
+        body: color('body'),
+        // The page behind the cards.
+        page: color('page'),
+        // Cards, the header and footer bars, and anything you type into: white
+        // in light mode.
+        surface: color('surface'),
+        // Text and marks on a filled accent background: white in light mode,
+        // near-black in dark, where the accent is a lighter teal.
+        'on-accent': color('on-accent'),
+        // Row hover and the selected row in a list inside a card.
+        hover: color('hover'),
+        selected: color('selected'),
         // Card footer strips and the cabin diagram's well.
-        well: '#fbfcfc',
+        well: color('well'),
         // Decorative dividers and card outlines only. At 1.24:1 on white it is too
         // faint to be the only thing that shows where a control is.
         line: {
-          DEFAULT: '#e5e7eb',
+          DEFAULT: color('line'),
           // The outline of a raised card, one step firmer than a plain one.
-          strong: '#d9dcde',
+          strong: color('line-strong'),
         },
         // Dividers inside a card, softer than `line`: `divide-soft`, `border-soft`.
-        soft: '#eef0f1',
+        soft: color('soft'),
         // The border of anything you type into or press: 3.38:1 on white, over
         // the 3:1 WCAG asks of a control's boundary (1.4.11).
-        field: '#868c96',
+        field: color('field'),
         // Dashed outline of a placeholder slot or drop well.
-        slot: '#b9bfc5',
+        slot: color('slot'),
         // The track behind a segmented control, and a neutral badge.
-        track: '#f1f3f3',
-        'seat-empty': '#e9ebec',
-        danger: '#b3261e',
+        track: color('track'),
+        'seat-empty': color('seat-empty'),
+        danger: color('danger'),
         accent: {
-          DEFAULT: '#0f766e',
+          DEFAULT: color('accent'),
           // Hover for filled buttons. Fading the accent instead (the old
           // `hover:opacity-90`) took white text on it to 4.48:1, just under AA.
-          dark: '#115e59',
+          dark: color('accent-dark'),
         },
       },
       fontFamily: {
@@ -55,7 +70,7 @@ export default {
         hero: '0 1px 2px rgba(17,24,28,.05), 0 8px 24px -16px rgba(17,24,28,.22)',
         seg: '0 1px 2px rgba(17,24,28,.13)',
         // Focus halo on text inputs, on top of the border turning accent.
-        field: '0 0 0 3px rgba(15,118,110,.12)',
+        field: '0 0 0 3px rgb(var(--c-accent) / .12)',
       },
     },
   },

@@ -54,7 +54,7 @@ export function PageShell({
 }) {
   return (
     <>
-      <header className="border-b border-line bg-white">
+      <header className="border-b border-line bg-surface">
         <div className={`${CONTAINER[width]} flex h-14 items-center justify-between gap-4`}>
           {homeLink ? (
             <Link href="/" aria-label="seatswap home">
@@ -69,7 +69,7 @@ export function PageShell({
 
       <main className={`${CONTAINER[width]} flex-1`}>{children}</main>
 
-      <footer className="mt-11 border-t border-line bg-white">
+      <footer className="mt-11 border-t border-line bg-surface">
         <div
           className={`${CONTAINER[width]} flex flex-wrap items-baseline justify-between gap-x-6 gap-y-3.5 pb-[30px] pt-[22px]`}
         >
@@ -105,7 +105,7 @@ export function Card({
   return (
     <section
       className={
-        'overflow-hidden rounded-card border bg-white '
+        'overflow-hidden rounded-card border bg-surface '
         + (raised ? 'border-line-strong shadow-raised ' : 'border-line ')
         + className
       }

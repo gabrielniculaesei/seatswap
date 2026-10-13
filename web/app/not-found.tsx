@@ -19,6 +19,9 @@ const PARTS = [
   { term: 'Departure date', detail: 'Year, month, day, and it has to be in the next year.', color: '#8d4a7c' },
 ];
 
+/** Each part's colour, lifted in dark mode by .party-text (globals.css). */
+const partyStyle = (i: number) => ({ '--party': PARTS[i].color }) as React.CSSProperties;
+
 export default function NotFound() {
   return (
     <PageShell
@@ -41,7 +44,7 @@ export default function NotFound() {
         </p>
       </section>
 
-      <section className="overflow-hidden rounded-card border border-line-strong bg-white">
+      <section className="overflow-hidden rounded-card border border-line-strong bg-surface">
         <div className="flex items-center justify-between gap-2.5 border-b border-line px-[18px] py-[13px]">
           <h2 className="text-[14.5px] font-semibold">A flight page address</h2>
           <span className="meta-mono">Three parts</span>
@@ -49,9 +52,9 @@ export default function NotFound() {
         <div className="border-b border-line bg-well px-[18px] py-4">
           <p className="break-all font-mono text-[clamp(15px,3.6vw,19px)] tracking-[0.03em]">
             /f/
-            <span className="font-semibold" style={{ color: PARTS[0].color }}>W6</span>-
-            <span className="font-semibold" style={{ color: PARTS[1].color }}>3234</span>/
-            <span className="font-semibold" style={{ color: PARTS[2].color }}>2026-10-12</span>
+            <span className="party-text font-semibold" style={partyStyle(0)}>W6</span>-
+            <span className="party-text font-semibold" style={partyStyle(1)}>3234</span>/
+            <span className="party-text font-semibold" style={partyStyle(2)}>2026-10-12</span>
           </p>
         </div>
         <dl className="divide-y divide-soft">

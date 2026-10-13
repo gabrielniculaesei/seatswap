@@ -49,8 +49,8 @@ export default function ShareButton({
         className={
           'w-full rounded-lg border px-4 py-[11px] text-[14.5px] font-semibold transition-colors '
           + (primary
-            ? 'border-accent bg-accent text-white hover:border-accent-dark hover:bg-accent-dark'
-            : 'border-field bg-white text-ink hover:border-accent')
+            ? 'border-accent bg-accent text-on-accent hover:border-accent-dark hover:bg-accent-dark'
+            : 'border-field bg-surface text-ink hover:border-accent')
         }
       >
         Share this flight
